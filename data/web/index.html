@@ -206,6 +206,12 @@
   .pr-key.long:not(.scroll) { -webkit-mask-image: linear-gradient(90deg, #000 75%, transparent); mask-image: linear-gradient(90deg, #000 75%, transparent); }
   .pr-key.scroll .kk { animation: slide var(--dur, 3s) ease-in-out infinite alternate; }
   @keyframes slide { 0%, 15% { transform: translateX(0); } 85%, 100% { transform: translateX(var(--shift)); } }
+  .pr.pr-confirm { display: flex; align-items: center; gap: 8px; min-height: 55px;
+    background: color-mix(in srgb, var(--bad) 16%, var(--panel)); }
+  .pr.pr-confirm:hover { background: color-mix(in srgb, var(--bad) 16%, var(--panel)); }
+  .pc-text { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pc-yes { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .pc-yes:hover { filter: brightness(1.08); border-color: var(--bad); }
   .pr-key.listening, .hk.listening { border-color: var(--accent) !important; color: var(--accent) !important; }
   @media (max-width: 480px) {
     .pr { grid-template-columns: 38px minmax(0, 1fr); grid-template-areas: "go name" "go vals" "side side"; }
@@ -524,7 +530,7 @@ const I18N = {
     "presets.search": "Search positions", "presets.save": "Save", "presets.name": "Position name", "presets.saveCurrent": "Save current position",
     "presets.emptyTitle": "No positions yet", "presets.empty": "Frame the camera the way you like, then click “Save”.", "presets.noMatch": "No position contains “{q}”.",
     "presets.go": "Go to this position", "presets.up": "Move up in the list", "presets.copy": "Copy the Stream Deck address", "presets.update": "Replace with the current position",
-    "presets.delete": "Delete", "presets.confirmDelete": "Click again to delete", "presets.default": "Position {n}",
+    "presets.delete": "Delete", "presets.confirmDelete": "Delete “{n}”?", "presets.default": "Position {n}",
     "presets.saved": "“{n}” saved", "presets.updated": "“{n}” updated", "presets.deleted": "“{n}” deleted", "presets.copied": "Address copied, paste it into the Stream Deck",
     "hk.add": "Add a keyboard shortcut", "hk.change": "Shortcut: {k}. Click to change it", "hk.press": "Press keys…", "hk.none": "None",
     "hk.saved": "Shortcut {k} saved", "hk.cleared": "Shortcut removed", "hk.unsupported": "This key cannot be used as a shortcut",
@@ -553,7 +559,7 @@ const I18N = {
     "notice.fixed": "“{n}” doesn't report any movement or zoom control. The preview and video settings still work.",
     "notice.compat": "See compatible cameras", "notice.other": "Choose another camera",
     "toast.camOk": "Camera connected", "toast.camStill": "Still no camera", "toast.camNotFound": "Camera not found, check that it is in webcam mode",
-    "toast.copied": "Address copied", "common.cancel": "Cancel", "error.app": "Panel not responding",
+    "toast.copied": "Address copied", "common.cancel": "Cancel", "common.yes": "Yes", "common.no": "No", "error.app": "Panel not responding",
   },
   fr: {
     "app.name": "Camériste",
@@ -572,7 +578,7 @@ const I18N = {
     "presets.search": "Chercher une position", "presets.save": "Enregistrer", "presets.name": "Nom de la position", "presets.saveCurrent": "Enregistrer la position actuelle",
     "presets.emptyTitle": "Aucune position pour l'instant", "presets.empty": "Cadre la caméra comme tu veux, puis clique sur « Enregistrer ».", "presets.noMatch": "Aucune position ne contient « {q} ».",
     "presets.go": "Aller à cette position", "presets.up": "Monter dans la liste", "presets.copy": "Copier l'adresse pour le Stream Deck", "presets.update": "Remplacer par la position actuelle",
-    "presets.delete": "Supprimer", "presets.confirmDelete": "Clique encore pour supprimer", "presets.default": "Position {n}",
+    "presets.delete": "Supprimer", "presets.confirmDelete": "Supprimer « {n} » ?", "presets.default": "Position {n}",
     "presets.saved": "« {n} » enregistrée", "presets.updated": "« {n} » mise à jour", "presets.deleted": "« {n} » supprimée", "presets.copied": "Adresse copiée, colle-la dans le Stream Deck",
     "hk.add": "Ajouter un raccourci clavier", "hk.change": "Raccourci : {k}. Clique pour le changer", "hk.press": "Appuie sur les touches…", "hk.none": "Aucun",
     "hk.saved": "Raccourci {k} enregistré", "hk.cleared": "Raccourci effacé", "hk.unsupported": "Cette touche ne peut pas servir de raccourci",
@@ -601,7 +607,7 @@ const I18N = {
     "notice.fixed": "« {n} » n'annonce aucune commande de mouvement ni de zoom. L'aperçu et les réglages vidéo restent utilisables.",
     "notice.compat": "Voir les caméras compatibles", "notice.other": "Choisir une autre caméra",
     "toast.camOk": "Caméra connectée", "toast.camStill": "Toujours pas de caméra", "toast.camNotFound": "Caméra introuvable, vérifie qu'elle est en mode webcam",
-    "toast.copied": "Adresse copiée", "common.cancel": "Annuler", "error.app": "Le panneau ne répond pas",
+    "toast.copied": "Adresse copiée", "common.cancel": "Annuler", "common.yes": "Oui", "common.no": "Non", "error.app": "Le panneau ne répond pas",
   },
 };
 let LANG = "en";
@@ -885,10 +891,17 @@ function renderPresets() {
       const b = e.target.closest("[data-act]"); if (!b) return;
       const act = b.dataset.act;
       if (act === "del") {
-        if (!b.classList.contains("danger")) { b.classList.add("danger"); b.title = t("presets.confirmDelete");
-          setTimeout(() => { b.classList.remove("danger"); b.title = t("presets.delete"); }, 3000); return; }
-        await api(`/api/presets/${p.id}`, { method: "DELETE" }); toast(t("presets.deleted", { n: p.name }));
+        el.className = "pr pr-confirm";
+        el.innerHTML = `<span class="pc-text"></span>
+          <button class="btn sm pc-yes" data-act="del-yes">${esc(t("common.yes"))}</button>
+          <button class="btn sm pc-no" data-act="del-no">${esc(t("common.no"))}</button>`;
+        $(".pc-text", el).textContent = t("presets.confirmDelete", { n: p.name });
+        $(".pc-no", el).focus();
+        el.onkeydown = e => { if (e.key === "Escape") renderPresets(); };
+        return;
       }
+      if (act === "del-no") { renderPresets(); return; }
+      if (act === "del-yes") { await api(`/api/presets/${p.id}`, { method: "DELETE" }); toast(t("presets.deleted", { n: p.name })); }
       if (act === "update") { await api("/api/presets", { body: { id: p.id } }); toast(t("presets.updated", { n: p.name })); }
       if (act === "up") { const ids = list.map(x => x.id); [ids[i - 1], ids[i]] = [ids[i], ids[i - 1]]; await api("/api/presets/order", { body: { ids } }); }
       if (act === "sd") { await copy(`${origin()}/api/preset/${p.id}/go`); toast(t("presets.copied")); return; }

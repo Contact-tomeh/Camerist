@@ -25,6 +25,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <util/dstr.h>
 #include <util/platform.h>
 
+#include <QEvent>
 #include <QLabel>
 #include <QMainWindow>
 #include <QVBoxLayout>
@@ -283,6 +284,25 @@ bool SetHotkey(const std::string &key, const QJsonObject &combo)
 /* ---------------------------------------------------------------------- */
 /* Dock dans OBS                                                           */
 /* ---------------------------------------------------------------------- */
+/* Quand on ferme le dock, OBS envoie un évènement « User + Close » à son contenu.
+   Les docks navigateur d'OBS ferment alors la page web ; elle est recréée
+   automatiquement à la réouverture. Sans ça, la page reste blanche. */
+class DockCloseWatcher : public QObject {
+public:
+	explicit DockCloseWatcher(QCefWidget *widget) : QObject(widget), cef(widget) {}
+
+protected:
+	bool eventFilter(QObject *obj, QEvent *event) override
+	{
+		if (event->type() == QEvent::Type(QEvent::User + QEvent::Close) && obs_browser_qcef_version() >= 2)
+			cef->closeBrowser();
+		return QObject::eventFilter(obj, event);
+	}
+
+private:
+	QCefWidget *cef;
+};
+
 static void CreateDock()
 {
 	if (!app().port)
@@ -293,7 +313,10 @@ static void CreateDock()
 	if (cef) {
 		cef->init_browser();
 		cef->wait_for_browser_init();
-		content = cef->create_widget(nullptr, url);
+		QCefWidget *browser = cef->create_widget(nullptr, url);
+		if (browser)
+			browser->installEventFilter(new DockCloseWatcher(browser));
+		content = browser;
 	}
 	if (!content) {
 		/* obs-browser absent : on indique au moins l'adresse */

@@ -31,12 +31,27 @@ static double Now()
 	return duration<double>(steady_clock::now().time_since_epoch()).count();
 }
 
-static double Ease(double t)
+/* Profil de vitesse « trapèze » : courte accélération, vitesse constante,
+   courte décélération. Avec une courbe en S classique, le début et la fin
+   sont si lents que la nacelle avance par petits sauts de 1° bien visibles ;
+   ici la vitesse reste régulière presque tout le trajet. */
+static double Ease(double u)
 {
-	return t * t * (3 - 2 * t);
+	const double r = 0.2;             // 20 % du temps pour accélérer, 20 % pour freiner
+	const double v = 1.0 / (1.0 - r); // vitesse de croisière
+	if (u <= 0)
+		return 0;
+	if (u >= 1)
+		return 1;
+	if (u < r)
+		return 0.5 * v * u * u / r;
+	if (u < 1 - r)
+		return v * (u - r / 2);
+	double w = 1 - u;
+	return 1 - 0.5 * v * w * w / r;
 }
 
-static constexpr double TICK = 0.05; // 20 envois par seconde au maximum
+static constexpr double TICK = 0.025; // 40 envois par seconde au maximum
 
 CameraWorker::CameraWorker() {}
 
@@ -335,7 +350,7 @@ void CameraWorker::Run()
 		std::function<void()> fn;
 		{
 			std::unique_lock<std::mutex> lock(qMutex);
-			qCond.wait_for(lock, std::chrono::milliseconds(busy ? 50 : 250),
+			qCond.wait_for(lock, std::chrono::milliseconds(busy ? 25 : 250),
 				       [this]() { return !queue.empty() || !running; });
 			if (!queue.empty()) {
 				fn = std::move(queue.front());
