@@ -64,11 +64,10 @@ jobs:
           root_dir="$(pwd)"
           commit_hash="${GITHUB_SHA:0:9}"
 
+          # Camera control only exists on Windows for now: the macOS and
+          # Linux builds still run as a check, but are not published.
           variants=(
             'windows-x64;zip|exe'
-            'macos-universal;tar.xz|pkg'
-            'ubuntu-24.04-x86_64;tar.xz|deb|ddeb'
-            'sources;tar.xz'
           )
 
           for variant_data in "${variants[@]}"; do
@@ -88,10 +87,15 @@ jobs:
           if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
           shopt -s extglob
 
-          echo "### Checksums" > ${{ github.workspace }}/CHECKSUMS.txt
-          for file in ${{ github.workspace }}/@(*.exe|*.deb|*.ddeb|*.pkg|*.tar.xz|*.zip); do
-            echo "    ${file##*/}: $(sha256sum "${file}" | cut -d " " -f 1)" >> ${{ github.workspace }}/CHECKSUMS.txt
-          done
+          {
+            echo "<details><summary>SHA-256 checksums (to check that a download is intact)</summary>"
+            echo
+            for file in ${{ github.workspace }}/@(*.exe|*.zip); do
+              echo "    ${file##*/}: $(sha256sum "${file}" | cut -d " " -f 1)"
+            done
+            echo
+            echo "</details>"
+          } > ${{ github.workspace }}/CHECKSUMS.txt
 
       - name: Create Release 🛫
         if: fromJSON(steps.check.outputs.validTag)
@@ -107,7 +111,3 @@ jobs:
           files: |
             ${{ github.workspace }}/*.exe
             ${{ github.workspace }}/*.zip
-            ${{ github.workspace }}/*.pkg
-            ${{ github.workspace }}/*.deb
-            ${{ github.workspace }}/*.ddeb
-            ${{ github.workspace }}/*.tar.xz
