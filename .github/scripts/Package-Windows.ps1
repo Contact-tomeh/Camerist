@@ -67,6 +67,33 @@ function Package {
     }
     Compress-Archive -Force @CompressArgs
     Log-Group
+
+    Log-Group "Building installer for ${ProductName}..."
+    $Iscc = (Get-Command iscc.exe -ErrorAction SilentlyContinue).Source
+    if ( -not $Iscc ) {
+        $Candidates = @(
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+            "${env:ProgramFiles}\Inno Setup 6\ISCC.exe"
+        )
+        $Iscc = $Candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    }
+    if ( -not $Iscc ) {
+        choco install innosetup --yes --no-progress | Out-Host
+        $Iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+    }
+
+    $IssArgs = @(
+        "/DMyAppVersion=${ProductVersion}"
+        "/DSourceDir=${ProjectRoot}\release\${Configuration}\${ProductName}"
+        "/DOutputDir=${ProjectRoot}\release"
+        "/DOutputName=${OutputName}-Installer"
+        "${ProjectRoot}\cmake\windows\resources\installer-Windows.iss"
+    )
+    & $Iscc @IssArgs
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "Inno Setup failed with exit code ${LASTEXITCODE}"
+    }
+    Log-Group
 }
 
 Package

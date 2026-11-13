@@ -22,9 +22,14 @@ The video stays in OBS: Camerist only sends movement commands to the camera, the
 
 ## Installation
 
-1. Download the latest Windows installer from the [Releases](../../releases) page and run it.
-2. Plug the camera in over USB, switch it to webcam mode and add it to OBS as a **Video Capture Device** source.
-3. Start OBS. Open the **Docks** menu and tick **Camerist** if the dock is not visible yet.
+1. Close OBS.
+2. Download `camerist-x.y.z-windows-x64-Installer.exe` from the [Releases](../../releases) page and run it. Windows asks for administrator rights because OBS plugins live in a shared folder.
+3. Plug the camera in over USB, switch it to webcam mode and add it to OBS as a **Video Capture Device** source.
+4. Start OBS. The **Camerist** dock appears on its own (otherwise open the **Docks** menu and tick it).
+
+The installer puts the plugin in `C:\ProgramData\obs-studio\plugins\camerist`, the folder OBS loads plugins from, so it works wherever OBS itself is installed. Uninstall it from Windows Settings, Apps, like any program. Your positions and settings are kept in `%APPDATA%\obs-studio\plugin_config\camerist`.
+
+Prefer a manual install? Download the `.zip` instead and extract it into `C:\ProgramData\obs-studio\plugins`.
 
 Requirements: OBS Studio 31 or newer on Windows 10 or 11.
 
@@ -69,9 +74,11 @@ To add a language, copy the `en` entries, translate them and open a pull request
 
 ## Building
 
-Every push to GitHub builds the plugin automatically (GitHub Actions, see `.github/workflows`). Tagging a version such as `0.1.0` creates a release with the installers.
+Every push to GitHub builds the plugin automatically (GitHub Actions, see `.github/workflows`). The build produces the Windows installer and a `.zip`, available for 90 days in the **Artifacts** section of the run. GitHub always wraps artifacts in a zip: open it to get the installer.
 
-To build locally, follow the instructions of the [OBS plugin template](https://github.com/obsproject/obs-plugintemplate), which this project is based on.
+To publish a version: on GitHub, go to **Releases**, **Draft a new release**, create a tag such as `0.1.0` and publish. The build runs again and attaches the installer to the release, ready to download.
+
+To build locally, follow the instructions of the [OBS plugin template](https://github.com/obsproject/obs-plugintemplate), which this project is based on. The installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 
 ## License
 
