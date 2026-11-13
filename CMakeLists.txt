@@ -49,6 +49,10 @@ target_sources(
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_17)
 
+# cpp-httplib (bibliothèque externe) déclenche des avertissements sans gravité :
+# ils ne doivent pas bloquer la compilation.
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES COMPILE_WARNING_AS_ERROR OFF)
+
 if(WIN32)
   # DirectShow (pilotage des caméras) et sockets (serveur local)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE strmiids uuid ole32 oleaut32 ws2_32)
