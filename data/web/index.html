@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Camerist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var t = "auto", a = "bleu";
+    try { t = localStorage.getItem("theme") || t; a = localStorage.getItem("accent") || a; } catch (e) {}
+    var dark = t === "dark" || (t === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    document.documentElement.dataset.accent = a;
+  })();
+</script>
+<style>
+  /* ---------- couleurs ---------- */
+  :root[data-theme="dark"] {
+    --bg: #121315; --panel: #1a1b1e; --raised: #24262a; --field: #141517;
+    --line: #2c2e33; --line-strong: #3d4047;
+    --text: #ececee; --muted: #9a9ca3; --faint: #686b73;
+    --ok: #3dbd78; --bad: #ef5b5b; --warn: #e3a737;
+    --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9ca3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --bg: #eceef1; --panel: #ffffff; --raised: #f3f4f6; --field: #ffffff;
+    --line: #dcdfe4; --line-strong: #c3c7cf;
+    --text: #18191c; --muted: #5d6068; --faint: #8b8e96;
+    --ok: #1e9a5a; --bad: #d23c3c; --warn: #b7791f;
+    --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235d6068' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    color-scheme: light;
+  }
+  :root[data-accent="bleu"]   { --accent: #3d7af5; --on-accent: #fff; }
+  :root[data-accent="violet"] { --accent: #7a5cf0; --on-accent: #fff; }
+  :root[data-accent="vert"]   { --accent: #129a6b; --on-accent: #fff; }
+  :root[data-accent="ambre"]  { --accent: #e6a020; --on-accent: #18191c; }
+  :root[data-accent="rose"]   { --accent: #dc3d7a; --on-accent: #fff; }
+  :root[data-accent="tomate"] { --accent: #e5483b; --on-accent: #fff; }
+  :root { --accent-soft: color-mix(in srgb, var(--accent) 15%, transparent);
+          --accent-line: color-mix(in srgb, var(--accent) 60%, transparent); }
+
+  /* ---------- base ---------- */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 14px/1.45 "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-feature-settings: "tnum" 1;
+    padding: 16px; max-width: 1240px; margin: 0 auto; -webkit-font-smoothing: antialiased; }
+  button, select, input { font: inherit; color: inherit; }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8;
+    stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; animation: none !important; } }
+  [hidden] { display: none !important; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    height: 34px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--line-strong);
+    background: var(--raised); cursor: pointer; user-select: none; touch-action: none;
+    font-weight: 500; white-space: nowrap; }
+  .btn:hover { border-color: var(--faint); }
+  .btn:active, .btn.held { background: var(--accent-soft); border-color: var(--accent); }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.icon { width: 34px; padding: 0; }
+  .btn.sm { height: 28px; padding: 0 8px; font-size: 13px; }
+  .btn.sm.icon { width: 28px; padding: 0; }
+  .btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+  .btn.ghost:hover:not(:disabled) { color: var(--text); background: var(--raised); }
+  .btn.danger, .btn.ghost.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+  a { color: var(--accent); }
+  a.btn { color: var(--text); text-decoration: none; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .field > span { font-size: 13px; font-weight: 500; }
+  .field > small, .hint { color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+  select, input[type=text], input[type=password], input[type=number], input[type=search] {
+    height: 34px; width: 100%; min-width: 0; padding: 0 10px; border-radius: 6px;
+    background: var(--field); border: 1px solid var(--line-strong); }
+  select { appearance: none; -webkit-appearance: none; cursor: pointer;
+    padding-right: 34px; background-image: var(--chev); background-repeat: no-repeat; background-position: right 12px center; }
+  select.compact { width: auto; height: 30px; font-size: 13px; padding-left: 9px; padding-right: 30px; background-position: right 10px center; }
+  select:hover, input:hover { border-color: var(--faint); }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+  .check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 5px 0; }
+  .check input { accent-color: var(--accent); width: 16px; height: 16px; margin: 2px 0 0; flex: none; }
+  code { font: 12.5px/1.4 Consolas, "Cascadia Mono", monospace; background: var(--field); border: 1px solid var(--line);
+    padding: 2px 6px; border-radius: 5px; word-break: break-all; }
+
+  /* ---------- en-tête ---------- */
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .mark { width: 46px; height: 46px; color: var(--accent); flex: none; }
+  .mark svg { width: 100%; height: 100%; }
+  .brand { flex: 1; min-width: 0; }
+  .brand h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.2px; line-height: 1.15; }
+  .status { display: flex; gap: 14px; margin-top: 3px; min-width: 0; }
+  .stat { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: 12.5px; color: var(--muted);
+    background: none; border: 0; padding: 0; cursor: default; }
+  .stat .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bad); flex: none; }
+  .stat.on .dot { background: var(--ok); }
+  .stat.on.warn .dot { background: var(--warn); }
+  .stat .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stat.off { cursor: pointer; }
+  .stat.off:hover .txt { color: var(--text); text-decoration: underline; }
+  .seg { display: inline-flex; padding: 2px; gap: 2px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); flex: none; }
+  .seg button { height: 28px; min-width: 30px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent;
+    color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; }
+  .seg button:hover { color: var(--text); }
+  .seg button[aria-pressed="true"] { background: var(--raised); color: var(--text); box-shadow: 0 0 0 1px var(--line-strong) inset; }
+
+  /* ---------- grille ---------- */
+  .layout { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+  @media (min-width: 880px) {
+    .layout { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: stretch; }
+    .side-panel { position: relative; }
+    .side-panel > .side-inner { position: absolute; inset: 0; display: flex; flex-direction: column; }
+    .side-panel .tab-body { flex: 1; overflow: auto; min-height: 0; }
+  }
+  @media (max-width: 879px) { .side-inner { display: flex; flex-direction: column; } }
+
+  /* ---------- caméra ---------- */
+  .cam { padding: 12px; }
+  .bar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .bar .title { font-weight: 600; font-size: 15px; margin-right: auto; }
+  .bar label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
+  .viewfinder { position: relative; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; background: #08090a;
+    display: grid; place-items: center; }
+  .viewfinder img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .viewfinder img:not(.loaded) { visibility: hidden; }
+  .vf-msg { color: #8e9097; font-size: 13px; padding: 16px; text-align: center; max-width: 340px; }
+  .overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .overlay line, .overlay rect { stroke: rgba(255,255,255,.55); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+  .overlay .faint { stroke: rgba(255,255,255,.3); stroke-dasharray: 4 4; }
+  .vf-read { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 4px; flex-wrap: wrap; pointer-events: none; }
+  .vf-read span, .vf-fps { background: rgba(10,10,12,.66); color: #f0f0f2; font-size: 12px; font-weight: 500; padding: 2px 7px; border-radius: 4px; }
+  .vf-read b { color: rgba(240,240,242,.6); font-weight: 500; margin-right: 4px; }
+  .vf-read em { font-style: normal; }
+  .vf-fps { position: absolute; right: 10px; top: 10px; pointer-events: none; color: rgba(240,240,242,.75); }
+
+  .subhead { display: flex; align-items: center; gap: 10px; margin: 14px 0 8px; }
+  .subhead h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); margin-right: auto; }
+  .drive { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: stretch; }
+  .aim { position: relative; border-radius: 6px; background: var(--field); border: 1px solid var(--line-strong);
+    min-height: 152px; cursor: crosshair; touch-action: none; overflow: hidden; }
+  .aim .hline { position: absolute; left: 0; right: 0; height: 0; border-top: 1px solid var(--line); pointer-events: none; }
+  .aim .guide { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed var(--line-strong); pointer-events: none; }
+  .aim .guide i { position: absolute; top: 5px; left: 5px; font-style: normal; font-size: 11px; color: var(--faint); white-space: nowrap; }
+  .aim .mark-p { position: absolute; width: 19px; height: 19px; margin: -9.5px 0 0 -9.5px; border-radius: 50%;
+    background: var(--panel); border: 1px solid var(--line-strong); color: var(--muted);
+    font-size: 10.5px; font-weight: 600; display: grid; place-items: center; pointer-events: none; }
+  .aim .me { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); pointer-events: none; transition: left .08s linear, top .08s linear; }
+  .dpad { display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); gap: 4px; }
+  .dpad .btn { width: 44px; height: 44px; padding: 0; }
+  .dpad .center { color: var(--muted); }
+  .rows { display: grid; gap: 9px; margin-top: 14px; }
+  .axis-row { display: grid; grid-template-columns: 96px 34px minmax(0, 1fr) 34px 58px; gap: 8px; align-items: center; }
+  .axis-row .lbl { font-size: 13px; font-weight: 500; }
+  .axis-row .val { text-align: right; color: var(--muted); font-size: 13px; }
+  .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+
+  .notice { border: 1px dashed var(--line-strong); border-radius: 8px; padding: 22px 18px; text-align: center; color: var(--muted); }
+  .notice strong { display: block; color: var(--text); font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .notice p { margin: 0 auto 12px; max-width: 380px; }
+  .notice .row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---------- onglets ---------- */
+  .tabs { display: flex; gap: 4px; padding: 0 12px; border-bottom: 1px solid var(--line); flex: none; overflow-x: auto; }
+  .tab { position: relative; height: 46px; padding: 0 10px; border: 0; background: none; cursor: pointer; color: var(--muted);
+    font-weight: 500; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { color: var(--text); }
+  .tab[aria-selected="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; background: var(--accent); border-radius: 2px; }
+  .tab .n { font-size: 12px; color: var(--faint); }
+  .tab-body { padding: 12px; }
+
+  /* ---------- positions ---------- */
+  .ptools { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+  .ptools .search { flex: 1; position: relative; min-width: 0; }
+  .ptools .search svg { position: absolute; left: 10px; top: 8px; color: var(--faint); }
+  .ptools .search input { padding-left: 34px; }
+  .newform { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; padding: 10px; border-radius: 8px;
+    background: var(--accent-soft); border: 1px solid var(--accent-line); }
+  .newform input { flex: 1 1 160px; }
+  .plist { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .pr { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; grid-template-areas: "go name side" "go vals side";
+    gap: 0 10px; align-items: center; padding: 8px 8px 8px 10px; border-top: 1px solid var(--line); }
+  .pr:first-child { border-top: 0; }
+  .pr:hover { background: var(--raised); }
+  .pr-go { grid-area: go; width: 38px; height: 38px; padding: 0; font-size: 15px; font-weight: 600; }
+  input.pr-name { grid-area: name; height: 26px; padding: 0 6px; margin-left: -6px; border: 1px solid transparent; background: transparent;
+    font-weight: 600; border-radius: 5px; width: 100%; }
+  input.pr-name:hover { border-color: var(--line-strong); }
+  input.pr-name:focus { background: var(--field); border-color: var(--line-strong); }
+  .pr-vals { grid-area: vals; color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .pr-vals span + span { margin-left: 9px; }
+  .pr-side { grid-area: side; display: flex; align-items: center; gap: 2px; }
+  .pr-key { height: 28px; min-width: 28px; max-width: 108px; padding: 0 7px; border-radius: 5px; border: 1px dashed var(--line-strong);
+    background: transparent; color: var(--muted); cursor: pointer; font-size: 12.5px; font-weight: 500; margin-right: 4px;
+    display: inline-flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+  .pr-key.set { border-style: solid; color: var(--text); background: var(--field); justify-content: flex-start; }
+  .pr-key .kk { display: inline-block; }
+  .pr-key.long:not(.scroll) { -webkit-mask-image: linear-gradient(90deg, #000 75%, transparent); mask-image: linear-gradient(90deg, #000 75%, transparent); }
+  .pr-key.scroll .kk { animation: slide var(--dur, 3s) ease-in-out infinite alternate; }
+  @keyframes slide { 0%, 15% { transform: translateX(0); } 85%, 100% { transform: translateX(var(--shift)); } }
+  .pr-key.listening, .hk.listening { border-color: var(--accent) !important; color: var(--accent) !important; }
+  @media (max-width: 480px) {
+    .pr { grid-template-columns: 38px minmax(0, 1fr); grid-template-areas: "go name" "go vals" "side side"; }
+    .pr-side { justify-content: flex-end; margin-top: 6px; }
+  }
+  .empty { text-align: center; color: var(--muted); padding: 22px 10px; }
+  .empty strong { display: block; color: var(--text); margin-bottom: 4px; font-weight: 600; }
+
+  /* ---------- formulaires ---------- */
+  .form { display: grid; gap: 12px 14px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  .form .full { grid-column: 1 / -1; }
+  .block { padding: 14px 0; border-top: 1px solid var(--line); }
+  .block:first-child { padding-top: 2px; border-top: 0; }
+  .block h3 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+  .block > p { margin: 0 0 12px; color: var(--muted); font-size: 12.5px; }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--panel); cursor: pointer;
+    box-shadow: 0 0 0 1px var(--line-strong); padding: 0; }
+  .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--text); }
+  .url-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+  .url-row code { flex: 1; min-width: 0; }
+  .sd-list { display: grid; gap: 8px; }
+  .sd-list > div > span { font-size: 12.5px; font-weight: 500; }
+
+  #toast { position: fixed; left: 50%; bottom: 16px; transform: translate(-50%, 6px); opacity: 0; pointer-events: none;
+    background: var(--text); color: var(--bg); padding: 8px 13px; border-radius: 6px; font-weight: 500; font-size: 13px;
+    transition: opacity .15s, transform .15s; max-width: calc(100vw - 32px); z-index: 20; }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  #toast.err { background: var(--bad); color: #fff; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  @media (max-width: 560px) {
+    body { padding: 10px; }
+    .mark { width: 40px; height: 40px; }
+    .brand h1 { font-size: 18px; }
+    .status { gap: 10px; }
+    .stat { max-width: 50%; }
+    .drive { grid-template-columns: minmax(0, 1fr); }
+    .dpad { justify-self: center; }
+    .axis-row { grid-template-columns: 74px 32px minmax(0, 1fr) 32px 50px; gap: 6px; }
+    .seg.theme button { min-width: 28px; padding: 0 6px; }
+    .cam .bar .title { flex-basis: 100%; }
+    .cam .bar label { flex: 1; min-width: 0; }
+    .cam .bar select.compact { flex: 1; width: 100%; min-width: 0; }
+  }
+.scene-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-top: 1px solid var(--line); }
+  .scene-row:first-child { border-top: 0; }
+  .scene-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .scene-row select { max-width: 58%; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h14V9"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-ccw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-cw" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-flip" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.4-6.4L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.4 6.4L3 16"/><path d="M8 16H3v5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m6 11 6-6 6 6"/><path d="M12 19V5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-auto" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M7 15h10"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="mark" aria-hidden="true">
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+      <path d="M4 15V7a3 3 0 0 1 3-3h8M33 4h8a3 3 0 0 1 3 3v8M44 33v8a3 3 0 0 1-3 3h-8M15 44H7a3 3 0 0 1-3-3v-8"/>
+      <circle cx="24" cy="24" r="7"/><circle cx="24" cy="24" r="1.6" fill="currentColor" stroke="none"/>
+    </svg>
+  </div>
+  <div class="brand">
+    <h1 data-t="app.name">Camerist</h1>
+    <div class="status">
+      <button class="stat" id="camStat"><span class="dot"></span><span class="txt" id="camLabel"></span></button>
+      <button class="stat" id="srcStat"><span class="dot"></span><span class="txt" id="srcLabel"></span></button>
+    </div>
+  </div>
+  <div class="seg theme" role="group">
+    <button data-theme-btn="auto" data-t-title="theme.auto"><svg class="i"><use href="#i-auto"/></svg></button>
+    <button data-theme-btn="light" data-t-title="theme.light"><svg class="i"><use href="#i-sun"/></svg></button>
+    <button data-theme-btn="dark" data-t-title="theme.dark"><svg class="i"><use href="#i-moon"/></svg></button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ===================== CAMERA ===================== -->
+  <section class="panel cam">
+    <div class="bar">
+      <span class="title" data-t="cam.title"></span>
+      <label><span data-t="grid.label"></span>
+        <select id="gridSel" class="compact">
+          <option value="none" data-t="grid.none"></option>
+          <option value="thirds" data-t="grid.thirds"></option>
+          <option value="grid" data-t="grid.grid"></option>
+          <option value="center" data-t="grid.center"></option>
+          <option value="diag" data-t="grid.diag"></option>
+          <option value="safe" data-t="grid.safe"></option>
+        </select>
+      </label>
+      <label><span data-t="preview.label"></span>
+        <select id="previewFps" class="compact">
+          <option value="0" data-t="preview.off"></option>
+          <option value="5" data-t="preview.5"></option>
+          <option value="10" data-t="preview.10"></option>
+          <option value="15" data-t="preview.15"></option>
+          <option value="60" data-t="preview.max"></option>
+        </select>
+      </label>
+    </div>
+
+    <div class="viewfinder">
+      <img id="previewImg" alt="">
+      <div class="vf-msg" id="previewMsg"></div>
+      <svg class="overlay" id="gridOverlay" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <span class="vf-fps" id="vfFps" hidden></span>
+      <div class="vf-read" id="vfRead"><span><b>Pan</b><em id="rPan">0°</em></span><span><b>Tilt</b><em id="rTilt">0°</em></span><span><b>Zoom</b><em id="rZoom">1.00×</em></span></div>
+    </div>
+
+    <div id="controls">
+      <div class="subhead">
+        <h3 data-t="orient.title"></h3>
+        <div class="seg" role="group">
+          <button data-mode="aim" data-t="orient.aim" data-t-title="orient.aimTip"></button>
+          <button data-mode="faders" data-t="orient.faders" data-t-title="orient.fadersTip"></button>
+        </div>
+      </div>
+
+      <div class="drive" id="driveAim">
+        <div class="aim" id="aim" data-t-title="orient.aimHint"></div>
+        <div class="dpad">
+          <span></span>
+          <button class="btn" data-jog="tilt" data-dir="1" data-t-title="move.up"><svg class="i"><use href="#i-up"/></svg></button>
+          <span></span>
+          <button class="btn" data-jog="pan" data-dir="-1" data-t-title="move.left"><svg class="i"><use href="#i-left"/></svg></button>
+          <button class="btn center" data-home data-t-title="move.home"><svg class="i"><use href="#i-home"/></svg></button>
+          <button class="btn" data-jog="pan" data-dir="1" data-t-title="move.right"><svg class="i"><use href="#i-right"/></svg></button>
+          <span></span>
+          <button class="btn" data-jog="tilt" data-dir="-1" data-t-title="move.down"><svg class="i"><use href="#i-down"/></svg></button>
+          <span></span>
+        </div>
+      </div>
+
+      <div class="rows">
+        <div class="axis-row" data-row="pan" data-faders-only>
+          <span class="lbl" data-t="axis.pan"></span>
+          <button class="btn icon" data-jog="pan" data-dir="-1" data-t-title="move.left"><svg class="i"><use href="#i-left"/></svg></button>
+          <input type="range" data-axis="pan">
+          <button class="btn icon" data-jog="pan" data-dir="1" data-t-title="move.right"><svg class="i"><use href="#i-right"/></svg></button>
+          <span class="val" data-val="pan"></span>
+        </div>
+        <div class="axis-row" data-row="tilt" data-faders-only>
+          <span class="lbl" data-t="axis.tilt"></span>
+          <button class="btn icon" data-jog="tilt" data-dir="-1" data-t-title="move.down"><svg class="i"><use href="#i-down"/></svg></button>
+          <input type="range" data-axis="tilt">
+          <button class="btn icon" data-jog="tilt" data-dir="1" data-t-title="move.up"><svg class="i"><use href="#i-up"/></svg></button>
+          <span class="val" data-val="tilt"></span>
+        </div>
+        <div class="axis-row" data-row="zoom">
+          <span class="lbl" data-t="axis.zoom"></span>
+          <button class="btn icon" data-jog="zoom" data-dir="-1" data-t-title="move.zoomOut"><svg class="i"><use href="#i-minus"/></svg></button>
+          <input type="range" data-axis="zoom">
+          <button class="btn icon" data-jog="zoom" data-dir="1" data-t-title="move.zoomIn"><svg class="i"><use href="#i-plus"/></svg></button>
+          <span class="val" data-val="zoom"></span>
+        </div>
+        <div class="axis-row" data-row="roll">
+          <span class="lbl" data-t="axis.roll"></span>
+          <button class="btn icon" data-jog="roll" data-dir="-1" data-t-title="move.rollLeft"><svg class="i"><use href="#i-ccw"/></svg></button>
+          <input type="range" data-axis="roll">
+          <button class="btn icon" data-jog="roll" data-dir="1" data-t-title="move.rollRight"><svg class="i"><use href="#i-cw"/></svg></button>
+          <span class="val" data-val="roll"></span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="btnFlip"><svg class="i"><use href="#i-flip"/></svg><span data-t="move.flip"></span></button>
+        <button class="btn" data-home><svg class="i"><use href="#i-home"/></svg><span data-t="move.home"></span></button>
+      </div>
+    </div>
+
+    <div id="camNotice" class="notice" style="margin-top:14px" hidden></div>
+  </section>
+
+  <!-- ===================== TABS ===================== -->
+  <section class="panel side-panel">
+    <div class="side-inner">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="presets"><span data-t="tab.presets"></span> <span class="n" id="presetCount"></span></button>
+        <button class="tab" role="tab" data-tab="scenes" data-t="tab.scenes"></button>
+        <button class="tab" role="tab" data-tab="video" data-t="tab.video"></button>
+        <button class="tab" role="tab" data-tab="settings" data-t="tab.settings"></button>
+      </div>
+
+      <!-- Positions -->
+      <div class="tab-body" data-pane="presets">
+        <div id="presetNotice" class="notice" style="margin-bottom:12px" hidden></div>
+        <div id="presetArea">
+          <div class="ptools">
+            <div class="search">
+              <svg class="i"><use href="#i-search"/></svg>
+              <input type="search" id="searchInput" data-t-ph="presets.search">
+            </div>
+            <button class="btn primary" id="btnNew"><svg class="i"><use href="#i-plus"/></svg><span data-t="presets.save"></span></button>
+          </div>
+          <form class="newform" id="newForm" hidden>
+            <input type="text" id="newName" data-t-ph="presets.name">
+            <button class="btn primary" type="submit" data-t="presets.saveCurrent"></button>
+            <button class="btn ghost" type="button" id="newCancel" data-t="common.cancel"></button>
+          </form>
+          <div id="presets"></div>
+        </div>
+      </div>
+
+      <!-- Scenes -->
+      <div class="tab-body" data-pane="scenes" hidden>
+        <p class="hint" style="margin:0 0 12px" data-t="scenes.intro"></p>
+        <div id="sceneList"></div>
+      </div>
+
+      <!-- Video -->
+      <div class="tab-body" data-pane="video" hidden>
+        <div class="bar" style="margin-bottom:12px">
+          <span class="hint" id="videoSource" style="margin-right:auto"></span>
+          <button class="btn sm" id="btnVideoReload"><svg class="i" style="width:15px;height:15px"><use href="#i-refresh"/></svg><span data-t="video.reload"></span></button>
+        </div>
+        <div class="form" id="videoForm"></div>
+      </div>
+
+      <!-- Settings -->
+      <div class="tab-body" data-pane="settings" hidden>
+        <div class="block">
+          <h3 data-t="set.camera"></h3>
+          <p data-t="set.cameraHint"></p>
+          <div class="form">
+            <label class="field full"><span data-t="set.cameraDevice"></span><select id="camName"></select></label>
+            <label class="field full"><span data-t="set.source"></span><select id="obsSource"></select></label>
+            <div class="full"><button class="btn" id="btnCamReco"><svg class="i"><use href="#i-refresh"/></svg><span data-t="set.reconnect"></span></button></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <h3 data-t="set.moves"></h3>
+          <p data-t="set.movesHint"></p>
+          <div class="form">
+            <label class="field"><span data-t="set.moveDur"></span><input type="number" id="moveDur" min="0" max="10" step="0.1"><small data-t="set.moveDurHint"></small></label>
+            <label class="field"><span data-t="set.spdPan"></span><input type="number" id="spdPan" min="1" max="180"><small data-t="set.spdPanHint"></small></label>
+            <label class="field"><span data-t="set.spdZoom"></span><input type="number" id="spdZoom" min="1" max="600"><small data-t="set.spdZoomHint"></small></label>
+            <label class="field"><span data-t="set.zoomStep"></span><input type="number" id="zoomStep" min="1" max="300"><small data-t="set.zoomStepHint"></small></label>
+          </div>
+        </div>
+
+        <div class="block">
+          <h3 data-t="set.hotkeys"></h3>
+          <p data-t="set.hotkeysHint"></p>
+          <div class="form">
+            <label class="field"><span data-t="move.home"></span><input type="text" class="hk" data-hk="home" readonly></label>
+            <label class="field"><span data-t="move.flip"></span><input type="text" class="hk" data-hk="flip" readonly></label>
+            <label class="field"><span data-t="move.zoomIn"></span><input type="text" class="hk" data-hk="zoom_in" readonly></label>
+            <label class="field"><span data-t="move.zoomOut"></span><input type="text" class="hk" data-hk="zoom_out" readonly></label>
+          </div>
+        </div>
+
+        <div class="block">
+          <h3>Stream Deck</h3>
+          <p data-t="set.sdHint"></p>
+          <div class="sd-list" id="sdList"></div>
+        </div>
+
+        <div class="block">
+          <h3 data-t="set.color"></h3>
+          <p data-t="set.colorHint"></p>
+          <div class="swatches" id="swatches"></div>
+        </div>
+
+        <p class="hint" id="aboutLine" style="margin:14px 0 0"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ======================================================================
+   Traductions. Pour ajouter une langue : copie le bloc "en", traduis-le
+   et ajoute-le sous son code (ex. "es", "de"). La langue d'OBS est
+   utilisée automatiquement, l'anglais sert de secours.
+   ====================================================================== */
+const I18N = {
+  en: {
+    "app.name": "Camerist",
+    "theme.auto": "Automatic theme (follows Windows)", "theme.light": "Light theme", "theme.dark": "Dark theme",
+    "cam.title": "Camera",
+    "grid.label": "Grid", "grid.none": "None", "grid.thirds": "Thirds", "grid.grid": "4×4 grid", "grid.center": "Center cross", "grid.diag": "Diagonals", "grid.safe": "Safe areas",
+    "preview.label": "Preview", "preview.off": "Off", "preview.5": "5 fps", "preview.10": "10 fps", "preview.15": "15 fps", "preview.max": "Max",
+    "preview.offMsg": "Preview off. The camera can still be controlled.", "preview.none": "No preview: {e}", "preview.fps": "{n} fps",
+    "orient.title": "Direction", "orient.aim": "Aim pad", "orient.faders": "Sliders",
+    "orient.aimTip": "Aim by clicking in the frame", "orient.fadersTip": "Use sliders", "orient.aimHint": "Click to aim, drag to follow",
+    "orient.front": "Front", "orient.back": "Back",
+    "move.up": "Up", "move.down": "Down", "move.left": "Left", "move.right": "Right", "move.home": "Reset camera",
+    "move.zoomIn": "Zoom in", "move.zoomOut": "Zoom out", "move.rollLeft": "Tilt image left", "move.rollRight": "Tilt image right", "move.flip": "Turn 180°",
+    "axis.pan": "Pan", "axis.tilt": "Tilt", "axis.zoom": "Zoom", "axis.roll": "Roll",
+    "tab.presets": "Positions", "tab.scenes": "Scenes", "tab.video": "Video", "tab.settings": "Settings",
+    "presets.search": "Search positions", "presets.save": "Save", "presets.name": "Position name", "presets.saveCurrent": "Save current position",
+    "presets.emptyTitle": "No positions yet", "presets.empty": "Frame the camera the way you like, then click “Save”.", "presets.noMatch": "No position contains “{q}”.",
+    "presets.go": "Go to this position", "presets.up": "Move up in the list", "presets.copy": "Copy the Stream Deck address", "presets.update": "Replace with the current position",
+    "presets.delete": "Delete", "presets.confirmDelete": "Click again to delete", "presets.default": "Position {n}",
+    "presets.saved": "“{n}” saved", "presets.updated": "“{n}” updated", "presets.deleted": "“{n}” deleted", "presets.copied": "Address copied, paste it into the Stream Deck",
+    "hk.add": "Add a keyboard shortcut", "hk.change": "Shortcut: {k}. Click to change it", "hk.press": "Press keys…", "hk.none": "None",
+    "hk.saved": "Shortcut {k} saved", "hk.cleared": "Shortcut removed", "hk.unsupported": "This key cannot be used as a shortcut",
+    "scenes.intro": "When OBS switches to a scene, the camera moves to the position you pick here.", "scenes.none": "No position",
+    "scenes.empty": "No scenes found in OBS.", "scenes.saved": "{s}: {p}", "scenes.cleared": "{s}: no position",
+    "video.reload": "Reload from OBS", "video.source": "Source: {s}", "video.hint": "Each change applies right away. The camera may cut out for a second in OBS.",
+    "video.unavailable": "Video settings unavailable", "video.reloaded": "Settings reloaded from OBS", "video.on": "{l}: on", "video.off": "{l}: off",
+    "set.camera": "Camera", "set.cameraHint": "Found automatically when its name contains Osmo, Pocket or DJI. Pick another camera here if needed.",
+    "set.cameraDevice": "Controlled camera", "set.cameraAuto": "Find the Osmo automatically", "set.source": "Camera source in OBS (preview and video settings)",
+    "set.sourceAuto": "Find automatically", "set.reconnect": "Reconnect camera",
+    "set.moves": "Movements", "set.movesHint": "Saved as soon as you change a value.",
+    "set.moveDur": "Travel time to a position", "set.moveDurHint": "In seconds, 0 to jump straight there",
+    "set.spdPan": "Arrow speed", "set.spdPanHint": "Degrees per second", "set.spdZoom": "Zoom speed", "set.spdZoomHint": "100 = one 1× step per second",
+    "set.zoomStep": "Zoom step", "set.zoomStepHint": "For shortcuts and the Stream Deck", "set.movesSaved": "Movements saved",
+    "set.hotkeys": "Keyboard shortcuts", "set.hotkeysHint": "They are OBS shortcuts: you will also find them in OBS Settings, Hotkeys. Click a box and press the keys, Esc to clear.",
+    "set.sdHint": "Add a System, Website action, tick “Access in background” and paste an address. To go to a position, copy its address from the Positions tab.",
+    "set.sdNudge": "To nudge, change axis (pan, tilt, roll, zoom) and delta (negative for the other way). Add ?d=0 to a position to go there without travel.",
+    "set.sdSmall": "Small step to the right",
+    "set.color": "Color", "set.colorHint": "Color of the main buttons and markers. Light or dark theme is at the top right.",
+    "set.about": "Camerist {v}, OBS {o}. Panel address: {u}",
+    "accent.bleu": "Blue", "accent.violet": "Purple", "accent.vert": "Green", "accent.ambre": "Amber", "accent.rose": "Pink", "accent.tomate": "Tomato",
+    "stat.camOk": "Camera connected and controllable", "stat.camFixed": "Camera connected but without movement controls", "stat.camMissing": "Camera not found",
+    "stat.srcNone": "No camera source in OBS", "stat.srcTip": "OBS source used for the preview and video settings",
+    "notice.missingTitle": "Camera not found", "notice.missing": "Plug the camera in over USB and switch it to webcam mode. If it has another name, pick it in the settings.",
+    "notice.retry": "Try again", "notice.settings": "Open settings", "notice.fixedTitle": "This camera can't be controlled",
+    "notice.fixed": "“{n}” doesn't report any movement or zoom control. The preview and video settings still work.",
+    "notice.compat": "See compatible cameras", "notice.other": "Choose another camera",
+    "toast.camOk": "Camera connected", "toast.camStill": "Still no camera", "toast.camNotFound": "Camera not found, check that it is in webcam mode",
+    "toast.copied": "Address copied", "common.cancel": "Cancel", "error.app": "Panel not responding",
+  },
+  fr: {
+    "app.name": "Camériste",
+    "theme.auto": "Thème automatique (suit Windows)", "theme.light": "Thème clair", "theme.dark": "Thème sombre",
+    "cam.title": "Caméra",
+    "grid.label": "Grille", "grid.none": "Aucune", "grid.thirds": "Tiers", "grid.grid": "Quadrillage", "grid.center": "Croix centrale", "grid.diag": "Diagonales", "grid.safe": "Zones de sécurité",
+    "preview.label": "Aperçu", "preview.off": "Coupé", "preview.5": "5 img/s", "preview.10": "10 img/s", "preview.15": "15 img/s", "preview.max": "Max",
+    "preview.offMsg": "Aperçu coupé. La caméra se pilote quand même.", "preview.none": "Pas d'aperçu : {e}", "preview.fps": "{n} img/s",
+    "orient.title": "Orientation", "orient.aim": "Viseur", "orient.faders": "Curseurs",
+    "orient.aimTip": "Viser en cliquant dans le cadre", "orient.fadersTip": "Régler avec des curseurs", "orient.aimHint": "Clique pour viser, glisse pour suivre",
+    "orient.front": "Devant", "orient.back": "Derrière",
+    "move.up": "Monter", "move.down": "Descendre", "move.left": "Gauche", "move.right": "Droite", "move.home": "Remettre à zéro",
+    "move.zoomIn": "Zoomer", "move.zoomOut": "Dézoomer", "move.rollLeft": "Pencher à gauche", "move.rollRight": "Pencher à droite", "move.flip": "Retourner de 180°",
+    "axis.pan": "Panoramique", "axis.tilt": "Inclinaison", "axis.zoom": "Zoom", "axis.roll": "Pellicule",
+    "tab.presets": "Positions", "tab.scenes": "Scènes", "tab.video": "Vidéo", "tab.settings": "Paramètres",
+    "presets.search": "Chercher une position", "presets.save": "Enregistrer", "presets.name": "Nom de la position", "presets.saveCurrent": "Enregistrer la position actuelle",
+    "presets.emptyTitle": "Aucune position pour l'instant", "presets.empty": "Cadre la caméra comme tu veux, puis clique sur « Enregistrer ».", "presets.noMatch": "Aucune position ne contient « {q} ».",
+    "presets.go": "Aller à cette position", "presets.up": "Monter dans la liste", "presets.copy": "Copier l'adresse pour le Stream Deck", "presets.update": "Remplacer par la position actuelle",
+    "presets.delete": "Supprimer", "presets.confirmDelete": "Clique encore pour supprimer", "presets.default": "Position {n}",
+    "presets.saved": "« {n} » enregistrée", "presets.updated": "« {n} » mise à jour", "presets.deleted": "« {n} » supprimée", "presets.copied": "Adresse copiée, colle-la dans le Stream Deck",
+    "hk.add": "Ajouter un raccourci clavier", "hk.change": "Raccourci : {k}. Clique pour le changer", "hk.press": "Appuie sur les touches…", "hk.none": "Aucun",
+    "hk.saved": "Raccourci {k} enregistré", "hk.cleared": "Raccourci effacé", "hk.unsupported": "Cette touche ne peut pas servir de raccourci",
+    "scenes.intro": "Quand OBS passe sur une scène, la caméra va à la position choisie ici.", "scenes.none": "Aucune position",
+    "scenes.empty": "Aucune scène trouvée dans OBS.", "scenes.saved": "{s} : {p}", "scenes.cleared": "{s} : aucune position",
+    "video.reload": "Relire depuis OBS", "video.source": "Source : {s}", "video.hint": "Chaque changement est appliqué tout de suite. La caméra peut couper une seconde dans OBS.",
+    "video.unavailable": "Réglages vidéo indisponibles", "video.reloaded": "Réglages relus depuis OBS", "video.on": "{l} : activé", "video.off": "{l} : désactivé",
+    "set.camera": "Caméra", "set.cameraHint": "Trouvée toute seule si son nom contient Osmo, Pocket ou DJI. Choisis-en une autre ici si besoin.",
+    "set.cameraDevice": "Caméra pilotée", "set.cameraAuto": "Trouver la Osmo toute seule", "set.source": "Source de la caméra dans OBS (aperçu et réglages vidéo)",
+    "set.sourceAuto": "Trouver toute seule", "set.reconnect": "Reconnecter la caméra",
+    "set.moves": "Mouvements", "set.movesHint": "Enregistré dès que tu changes une valeur.",
+    "set.moveDur": "Trajet vers une position", "set.moveDurHint": "En secondes, 0 pour y aller d'un coup",
+    "set.spdPan": "Vitesse des flèches", "set.spdPanHint": "Degrés par seconde", "set.spdZoom": "Vitesse du zoom", "set.spdZoomHint": "100 = un cran de 1× par seconde",
+    "set.zoomStep": "Pas du zoom", "set.zoomStepHint": "Pour les raccourcis et le Stream Deck", "set.movesSaved": "Mouvements enregistrés",
+    "set.hotkeys": "Raccourcis clavier", "set.hotkeysHint": "Ce sont des raccourcis d'OBS : tu les retrouves aussi dans Paramètres d'OBS, Raccourcis clavier. Clique sur une case puis appuie sur les touches, Échap pour effacer.",
+    "set.sdHint": "Ajoute une action Système, puis Site web, coche « Accès en arrière-plan » et colle une adresse. Pour aller à une position, copie son adresse depuis l'onglet Positions.",
+    "set.sdNudge": "Pour un petit pas, change axis (pan, tilt, roll, zoom) et delta (négatif pour l'autre sens). Ajoute ?d=0 à une position pour y aller sans trajet.",
+    "set.sdSmall": "Petit pas à droite",
+    "set.color": "Couleur", "set.colorHint": "Couleur des boutons principaux et des repères. Le thème clair ou sombre se change en haut à droite.",
+    "set.about": "Camériste {v}, OBS {o}. Adresse du panneau : {u}",
+    "accent.bleu": "Bleu", "accent.violet": "Violet", "accent.vert": "Vert", "accent.ambre": "Ambre", "accent.rose": "Rose", "accent.tomate": "Tomate",
+    "stat.camOk": "Caméra connectée et pilotable", "stat.camFixed": "Caméra connectée mais sans commandes de mouvement", "stat.camMissing": "Caméra non trouvée",
+    "stat.srcNone": "Aucune source caméra dans OBS", "stat.srcTip": "Source OBS utilisée pour l'aperçu et les réglages vidéo",
+    "notice.missingTitle": "Caméra non trouvée", "notice.missing": "Branche la caméra en USB et mets-la en mode webcam. Si elle a un autre nom, choisis-la dans les paramètres.",
+    "notice.retry": "Réessayer", "notice.settings": "Ouvrir les paramètres", "notice.fixedTitle": "Cette caméra ne se pilote pas",
+    "notice.fixed": "« {n} » n'annonce aucune commande de mouvement ni de zoom. L'aperçu et les réglages vidéo restent utilisables.",
+    "notice.compat": "Voir les caméras compatibles", "notice.other": "Choisir une autre caméra",
+    "toast.camOk": "Caméra connectée", "toast.camStill": "Toujours pas de caméra", "toast.camNotFound": "Caméra introuvable, vérifie qu'elle est en mode webcam",
+    "toast.copied": "Adresse copiée", "common.cancel": "Annuler", "error.app": "Le panneau ne répond pas",
+  },
+};
+let LANG = "en";
+function t(key, vars = {}) {
+  let s = (I18N[LANG] && I18N[LANG][key]) ?? I18N.en[key] ?? key;
+  for (const [k, v] of Object.entries(vars)) s = s.replaceAll("{" + k + "}", v);
+  return s;
+}
+function applyI18n() {
+  document.documentElement.lang = LANG;
+  $$("[data-t]").forEach(el => el.textContent = t(el.dataset.t));
+  $$("[data-t-title]").forEach(el => el.title = t(el.dataset.tTitle));
+  $$("[data-t-ph]").forEach(el => el.placeholder = t(el.dataset.tPh));
+  document.title = t("app.name");
+}
+
+/* ====================================================================== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const ACCENTS = { bleu: "#3d7af5", violet: "#7a5cf0", vert: "#129a6b", ambre: "#e6a020", rose: "#dc3d7a", tomate: "#e5483b" };
+let state = null, dragging = null, editingHotkey = null, moveDur = 1.5;
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+
+async function api(path, opts = {}) {
+  const o = { method: opts.method || (opts.body ? "POST" : "GET"), headers: {} };
+  if (opts.body) { o.headers["Content-Type"] = "application/json"; o.body = JSON.stringify(opts.body); }
+  const r = await fetch(path, o);
+  const j = await r.json().catch(() => ({ ok: false, error: t("error.app") }));
+  if (!j.ok) throw new Error(j.error || "Error");
+  return j;
+}
+let toastTimer;
+function toast(msg, err = false) {
+  const el = $("#toast"); el.textContent = msg; el.className = "show" + (err ? " err" : "");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.className = "", err ? 4500 : 1800);
+}
+const safe = fn => async (...a) => { try { await fn(...a); } catch (e) { toast(e.message, true); } };
+const origin = () => location.origin.replace("localhost", "127.0.0.1");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const num = (v, d = 0) => { const s = Number(v).toFixed(d); return LANG === "fr" ? s.replace(".", ",") : s; };
+const fmt = (a, v) => a === "zoom" ? num(v / 100, 2) + "×" : String(Math.round(v)).replace("-", "−") + "°";
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+}
+function setPressed(sel, attr, val) { $$(sel).forEach(b => b.setAttribute("aria-pressed", b.getAttribute(attr) === val)); }
+
+// ---------- thème et couleur ----------
+function applyTheme(th) {
+  const dark = th === "dark" || (th === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  setPressed("[data-theme-btn]", "data-theme-btn", th); store.set("theme", th);
+}
+function applyAccent(a) {
+  if (!ACCENTS[a]) a = "bleu";
+  document.documentElement.dataset.accent = a;
+  setPressed(".swatch", "data-accent", a); store.set("accent", a);
+}
+$$("[data-theme-btn]").forEach(b => b.onclick = () => { applyTheme(b.dataset.themeBtn); api("/api/settings", { body: { ui: { theme: b.dataset.themeBtn } } }).catch(() => {}); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme(store.get("theme", "auto")));
+for (const [name, hex] of Object.entries(ACCENTS)) {
+  const b = document.createElement("button"); b.className = "swatch"; b.dataset.accent = name; b.style.background = hex;
+  b.dataset.tTitle = "accent." + name;
+  b.onclick = () => { applyAccent(name); api("/api/settings", { body: { ui: { accent: name } } }).catch(() => {}); };
+  $("#swatches").appendChild(b);
+}
+const hadLocalTheme = store.get("theme", null) !== null, hadLocalAccent = store.get("accent", null) !== null;
+applyTheme(store.get("theme", "auto")); applyAccent(store.get("accent", "bleu"));
+
+// ---------- onglets ----------
+function showTab(name) {
+  $$(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === name));
+  $$("[data-pane]").forEach(p => p.hidden = p.dataset.pane !== name);
+  store.set("tab", name);
+  if (name === "video") loadVideo();
+  if (name === "scenes") loadScenes();
+}
+$$(".tab").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+function goSettings() { showTab("settings"); $(".side-panel").scrollIntoView({ behavior: "smooth", block: "start" }); }
+$("#camStat").onclick = () => { if ($("#camStat").classList.contains("off")) goSettings(); };
+$("#srcStat").onclick = () => { if ($("#srcStat").classList.contains("off")) goSettings(); };
+
+// ---------- viseur / curseurs ----------
+function applyMode(m) {
+  setPressed("[data-mode]", "data-mode", m); store.set("mode", m);
+  $("#driveAim").hidden = m !== "aim";
+  $$("[data-faders-only]").forEach(r => r.dataset.modeHidden = m !== "faders" ? "1" : "");
+  if (state) renderAxes();
+}
+$$("[data-mode]").forEach(b => b.onclick = () => applyMode(b.dataset.mode));
+
+// ---------- état ----------
+let firstLoad = true;
+async function refresh() {
+  try {
+    state = await api("/api/state");
+    if (firstLoad) {
+      LANG = (state.locale || "en").toLowerCase().startsWith("fr") ? "fr" : (I18N[(state.locale || "").slice(0, 2)] ? state.locale.slice(0, 2) : "en");
+      applyI18n();
+    }
+    const c = state.camera, st = $("#camStat");
+    st.classList.toggle("on", c.connected); st.classList.toggle("warn", c.connected && !c.controllable);
+    st.classList.toggle("off", !c.connected || !c.controllable);
+    $("#camLabel").textContent = c.connected ? c.name : t("stat.camMissing");
+    st.title = !c.connected ? (c.error || t("stat.camMissing")) : c.controllable ? t("stat.camOk") : t("stat.camFixed");
+    moveDur = state.settings.move_duration;
+    renderCompat(); renderAxes(); renderAim();
+    if (firstLoad) {
+      firstLoad = false;
+      if (state.ui) { if (!hadLocalTheme) applyTheme(state.ui.theme); if (!hadLocalAccent) applyAccent(state.ui.accent); }
+      renderPresets(); fillSettings(); showTab(store.get("tab", "presets")); refreshSource();
+    }
+  } catch (e) {
+    $("#camStat").classList.remove("on"); $("#camStat").classList.add("off"); $("#camLabel").textContent = t("error.app");
+  }
+}
+async function refreshSource() {
+  try {
+    const r = await api("/api/obs/sources");
+    const ok = !!r.current, el = $("#srcStat");
+    el.classList.toggle("on", ok); el.classList.toggle("off", !ok);
+    $("#srcLabel").textContent = ok ? r.current : t("stat.srcNone");
+    el.title = ok ? t("stat.srcTip") : t("stat.srcNone");
+  } catch {}
+}
+
+// ---------- caméra absente ou non pilotable ----------
+let compatSig = "";
+function renderCompat() {
+  const c = state.camera;
+  const mode = !c.connected ? "missing" : !c.controllable ? "fixed" : "ok";
+  const sig = mode + (c.name || "");
+  if (sig === compatSig) return; compatSig = sig;
+  const link = state.links?.compat;
+  const html = mode === "missing"
+    ? `<strong>${t("notice.missingTitle")}</strong><p>${t("notice.missing")}</p>
+       <div class="row"><button class="btn" data-act="retry">${t("notice.retry")}</button><button class="btn" data-act="settings">${t("notice.settings")}</button></div>`
+    : `<strong>${t("notice.fixedTitle")}</strong><p>${esc(t("notice.fixed", { n: c.name }))}</p>
+       <div class="row">${link ? `<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">${t("notice.compat")}</a>` : ""}<button class="btn" data-act="settings">${t("notice.other")}</button></div>`;
+  for (const id of ["camNotice", "presetNotice"]) { const n = $("#" + id); n.hidden = mode === "ok"; if (mode !== "ok") n.innerHTML = html; }
+  $("#controls").hidden = mode !== "ok";
+  $("#vfRead").hidden = mode !== "ok";
+  $("#presetArea").style.display = mode === "fixed" ? "none" : "";
+  $("#presetArea").style.opacity = mode === "missing" ? .5 : 1;
+}
+document.addEventListener("click", safe(async e => {
+  const b = e.target.closest(".notice [data-act]"); if (!b) return;
+  if (b.dataset.act === "settings") goSettings();
+  if (b.dataset.act === "retry") { const r = await api("/api/camera/reconnect", { method: "POST" });
+    toast(r.connected ? t("toast.camOk") : t("toast.camStill"), !r.connected); compatSig = ""; resetAxes(); refreshSource(); }
+}));
+
+// ---------- curseurs ----------
+function resetAxes() { $$("input[data-axis]").forEach(i => delete i.dataset.ready); aimBuilt = ""; }
+function renderAxes() {
+  const c = state.camera;
+  for (const a of ["pan", "tilt", "zoom", "roll"]) {
+    const row = $(`[data-row="${a}"]`), inp = $(`input[data-axis="${a}"]`), r = c.ranges[a];
+    row.hidden = !r || row.dataset.modeHidden === "1";
+    $$(`[data-jog="${a}"]`).forEach(b => b.disabled = !r);
+    if (!r) continue;
+    if (!inp.dataset.ready) {
+      inp.min = r.min; inp.max = r.max; inp.step = r.step; inp.dataset.ready = 1;
+      inp.setAttribute("aria-label", t("axis." + a));
+      if (!inp.dataset.bound) {
+        inp.dataset.bound = 1;
+        let last = 0, pend = null;
+        const send = () => { last = Date.now(); pend = null; api("/api/goto", { body: { [a]: +inp.value, duration: 0 } }).catch(e => toast(e.message, true)); };
+        inp.addEventListener("pointerdown", () => dragging = a);
+        inp.addEventListener("input", () => { $(`[data-val="${a}"]`).textContent = fmt(a, inp.value);
+          if (Date.now() - last > 80) send(); else { clearTimeout(pend); pend = setTimeout(send, 80); } });
+        inp.addEventListener("change", () => { send(); dragging = null; });
+      }
+    }
+    if (dragging !== a) { inp.value = c.pos[a]; $(`[data-val="${a}"]`).textContent = fmt(a, c.pos[a]); }
+  }
+  $("#rPan").textContent = fmt("pan", c.pos.pan); $("#rTilt").textContent = fmt("tilt", c.pos.tilt); $("#rZoom").textContent = fmt("zoom", c.pos.zoom);
+}
+
+// ---------- viseur cliquable ----------
+const aim = $("#aim");
+function aimRanges() { const r = state?.camera.ranges || {}; return r.pan && r.tilt ? r : null; }
+function toXY(pan, tilt) { const r = aimRanges();
+  return [(pan - r.pan.min) / (r.pan.max - r.pan.min) * 100, (r.tilt.max - tilt) / (r.tilt.max - r.tilt.min) * 100]; }
+function fromEvent(e) { const r = aimRanges(), b = aim.getBoundingClientRect();
+  const x = Math.min(1, Math.max(0, (e.clientX - b.left) / b.width)), y = Math.min(1, Math.max(0, (e.clientY - b.top) / b.height));
+  return { pan: Math.round(r.pan.min + x * (r.pan.max - r.pan.min)), tilt: Math.round(r.tilt.max - y * (r.tilt.max - r.tilt.min)) }; }
+let aimBuilt = "", aimDrag = null;
+function renderAim() {
+  const r = aimRanges();
+  if (!r) { if ($("[data-mode=aim]").getAttribute("aria-pressed") === "true" && state?.camera.controllable) applyMode("faders"); return; }
+  const sig = JSON.stringify([r.pan, r.tilt, state.presets.map(p => [p.pan, p.tilt])]);
+  if (sig !== aimBuilt) {
+    aimBuilt = sig; aim.innerHTML = "";
+    const h = document.createElement("div"); h.className = "hline"; h.style.top = toXY(0, 0)[1] + "%"; aim.appendChild(h);
+    [[r.pan.default, t("orient.front")], [r.pan.default + 180, t("orient.back")]].forEach(([p, label]) => {
+      if (p < r.pan.min || p > r.pan.max) return;
+      const g = document.createElement("div"); g.className = "guide"; g.style.left = toXY(p, 0)[0] + "%"; g.innerHTML = `<i>${esc(label)}</i>`; aim.appendChild(g);
+    });
+    state.presets.forEach((p, i) => {
+      if (p.pan == null || p.tilt == null) return;
+      const [x, y] = toXY(p.pan, p.tilt);
+      const m = document.createElement("div"); m.className = "mark-p"; m.textContent = i + 1;
+      m.style.left = x + "%"; m.style.top = y + "%"; aim.appendChild(m);
+    });
+    const me = document.createElement("div"); me.className = "me"; aim.appendChild(me);
+  }
+  const pos = aimDrag?.last || state.camera.pos, [x, y] = toXY(pos.pan, pos.tilt);
+  $(".me", aim).style.left = x + "%"; $(".me", aim).style.top = y + "%";
+}
+aim.addEventListener("pointerdown", e => { if (!aimRanges()) return; aim.setPointerCapture(e.pointerId);
+  aimDrag = { x: e.clientX, y: e.clientY, moved: false, t: 0, last: null }; });
+aim.addEventListener("pointermove", e => {
+  if (!aimDrag) return;
+  if (Math.hypot(e.clientX - aimDrag.x, e.clientY - aimDrag.y) > 5) aimDrag.moved = true;
+  if (!aimDrag.moved) return;
+  aimDrag.last = fromEvent(e); renderAim();
+  if (Date.now() - aimDrag.t > 90) { aimDrag.t = Date.now(); api("/api/goto", { body: { ...aimDrag.last, duration: 0 } }).catch(() => {}); }
+});
+aim.addEventListener("pointerup", e => { if (!aimDrag) return; const p = fromEvent(e), d = aimDrag.moved ? 0 : moveDur; aimDrag = null;
+  api("/api/goto", { body: { ...p, duration: d } }).catch(err => toast(err.message, true)); });
+aim.addEventListener("pointercancel", () => aimDrag = null);
+
+// ---------- boutons maintenus ----------
+$$("[data-jog]").forEach(btn => {
+  let timer = null;
+  const axis = btn.dataset.jog, dir = +btn.dataset.dir;
+  const stop = () => { if (!timer) return; clearInterval(timer); timer = null; btn.classList.remove("held");
+    api("/api/jog", { body: { axis, stop: true } }).catch(() => {}); };
+  btn.addEventListener("pointerdown", e => {
+    if (btn.disabled) return;
+    e.preventDefault(); btn.setPointerCapture?.(e.pointerId); btn.classList.add("held");
+    const ping = () => api("/api/jog", { body: { axis, dir } }).catch(err => { toast(err.message, true); stop(); });
+    ping(); timer = setInterval(ping, 200);
+  });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(ev => btn.addEventListener(ev, stop));
+});
+$$("[data-home]").forEach(b => b.onclick = safe(() => api("/api/home", { method: "POST" })));
+$("#btnFlip").onclick = safe(() => api("/api/flip", { method: "POST" }));
+
+// ---------- positions ----------
+function renderPresets() {
+  const box = $("#presets"), list = state.presets, q = $("#searchInput").value.trim().toLowerCase();
+  $("#presetCount").textContent = list.length || "";
+  if (!list.length) { box.className = ""; box.innerHTML = `<div class="empty"><strong>${t("presets.emptyTitle")}</strong>${t("presets.empty")}</div>`; return; }
+  box.className = "plist"; box.innerHTML = "";
+  let shown = 0;
+  list.forEach((p, i) => {
+    if (q && !p.name.toLowerCase().includes(q)) return;
+    shown++;
+    const hk = state.hotkeys?.["preset:" + p.id] || "";
+    const vals = ["pan", "tilt", "zoom", "roll"].filter(a => p[a] != null && (a !== "roll" || p.roll))
+      .map(a => `<span>${a === "pan" ? "Pan" : a === "tilt" ? "Tilt" : t("axis." + a)} ${fmt(a, p[a])}</span>`).join("");
+    const el = document.createElement("div"); el.className = "pr";
+    el.innerHTML = `
+      <button class="btn primary pr-go" title="${esc(t("presets.go"))}">${i + 1}</button>
+      <input type="text" class="pr-name" aria-label="${esc(t("presets.name"))}">
+      <div class="pr-side">
+        <button class="pr-key ${hk ? "set" : ""}" title="${esc(hk ? t("hk.change", { k: hk }) : t("hk.add"))}">${hk ? `<span class="kk">${esc(hk)}</span>` : '<svg class="i" style="width:16px;height:16px"><use href="#i-key"/></svg>'}</button>
+        <button class="btn sm icon ghost" data-act="up" title="${esc(t("presets.up"))}" ${i === 0 ? "disabled" : ""}><svg class="i"><use href="#i-arrow-up"/></svg></button>
+        <button class="btn sm icon ghost" data-act="sd" title="${esc(t("presets.copy"))}"><svg class="i"><use href="#i-copy"/></svg></button>
+        <button class="btn sm icon ghost" data-act="update" title="${esc(t("presets.update"))}"><svg class="i"><use href="#i-refresh"/></svg></button>
+        <button class="btn sm icon ghost" data-act="del" title="${esc(t("presets.delete"))}"><svg class="i"><use href="#i-trash"/></svg></button>
+      </div>
+      <div class="pr-vals">${vals}</div>`;
+    $(".pr-name", el).value = p.name;
+    $(".pr-go", el).onclick = safe(() => api(`/api/preset/${p.id}/go`, { method: "POST" }));
+    $(".pr-name", el).addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
+    $(".pr-name", el).onchange = safe(async e => { await api(`/api/presets/${p.id}`, { method: "PATCH", body: { name: e.target.value } }); await reloadPresets(); });
+    const key = $(".pr-key", el);
+    key.addEventListener("mouseenter", () => {
+      const kk = $(".kk", key); if (!kk) return;
+      const over = kk.scrollWidth - (key.clientWidth - 14);
+      if (over > 0) { key.style.setProperty("--shift", -over + "px"); key.style.setProperty("--dur", Math.max(1.5, over / 25) + "s"); key.classList.add("scroll"); }
+    });
+    key.addEventListener("mouseleave", () => key.classList.remove("scroll"));
+    requestAnimationFrame(() => { const kk = $(".kk", key); if (kk && kk.scrollWidth > key.clientWidth - 14) key.classList.add("long"); });
+    captureHotkey(key, "preset:" + p.id, () => reloadPresets());
+    el.addEventListener("click", safe(async e => {
+      const b = e.target.closest("[data-act]"); if (!b) return;
+      const act = b.dataset.act;
+      if (act === "del") {
+        if (!b.classList.contains("danger")) { b.classList.add("danger"); b.title = t("presets.confirmDelete");
+          setTimeout(() => { b.classList.remove("danger"); b.title = t("presets.delete"); }, 3000); return; }
+        await api(`/api/presets/${p.id}`, { method: "DELETE" }); toast(t("presets.deleted", { n: p.name }));
+      }
+      if (act === "update") { await api("/api/presets", { body: { id: p.id } }); toast(t("presets.updated", { n: p.name })); }
+      if (act === "up") { const ids = list.map(x => x.id); [ids[i - 1], ids[i]] = [ids[i], ids[i - 1]]; await api("/api/presets/order", { body: { ids } }); }
+      if (act === "sd") { await copy(`${origin()}/api/preset/${p.id}/go`); toast(t("presets.copied")); return; }
+      await reloadPresets();
+    }));
+    box.appendChild(el);
+  });
+  if (!shown) { box.className = ""; box.innerHTML = `<div class="empty">${esc(t("presets.noMatch", { q }))}</div>`; }
+}
+async function reloadPresets() { state = await api("/api/state"); aimBuilt = ""; renderPresets(); renderAim(); }
+$("#searchInput").addEventListener("input", () => renderPresets());
+$("#searchInput").addEventListener("keydown", e => { if (e.key === "Escape") { e.target.value = ""; renderPresets(); } });
+$("#btnNew").onclick = () => { $("#newForm").hidden = false; $("#newName").value = t("presets.default", { n: state.presets.length + 1 }); $("#newName").select(); };
+$("#newCancel").onclick = () => $("#newForm").hidden = true;
+$("#newName").addEventListener("keydown", e => { if (e.key === "Escape") $("#newCancel").click(); });
+$("#newForm").onsubmit = safe(async e => {
+  e.preventDefault();
+  const r = await api("/api/presets", { body: { name: $("#newName").value.trim() } });
+  $("#newForm").hidden = true; toast(t("presets.saved", { n: r.preset.name })); await reloadPresets();
+});
+
+// ---------- raccourcis (enregistrés dans OBS) ----------
+const CODE_KEYS = { Space: "SPACE", Enter: "RETURN", NumpadEnter: "ENTER", Tab: "TAB", Backspace: "BACKSPACE", Delete: "DELETE",
+  Insert: "INSERT", Home: "HOME", End: "END", PageUp: "PAGEUP", PageDown: "PAGEDOWN", Pause: "PAUSE",
+  ArrowUp: "UP", ArrowDown: "DOWN", ArrowLeft: "LEFT", ArrowRight: "RIGHT",
+  NumpadAdd: "NUMPLUS", NumpadSubtract: "NUMMINUS", NumpadMultiply: "NUMASTERISK", NumpadDivide: "NUMSLASH", NumpadDecimal: "NUMPERIOD",
+  Minus: "MINUS", Equal: "EQUAL", Comma: "COMMA", Period: "PERIOD", Slash: "SLASH", Semicolon: "SEMICOLON",
+  Quote: "APOSTROPHE", BracketLeft: "BRACKETLEFT", BracketRight: "BRACKETRIGHT", Backslash: "BACKSLASH" };
+function obsKey(e) {
+  if (/^[a-z]$/i.test(e.key)) return "OBS_KEY_" + e.key.toUpperCase();        // lettres : selon la disposition du clavier
+  if (/^Digit\d$/.test(e.code)) return "OBS_KEY_" + e.code.slice(5);
+  if (/^Numpad\d$/.test(e.code)) return "OBS_KEY_NUM" + e.code.slice(6);
+  if (/^F\d{1,2}$/.test(e.key)) return "OBS_KEY_" + e.key;
+  return CODE_KEYS[e.code] ? "OBS_KEY_" + CODE_KEYS[e.code] : null;
+}
+function captureHotkey(el, target, after) {
+  const isInput = el.tagName === "INPUT";
+  const restore = () => { if (isInput) { el.value = state.hotkeys?.[target] || ""; el.placeholder = t("hk.none"); } else renderPresets(); };
+  el.addEventListener("click", () => {
+    if (editingHotkey && editingHotkey !== el) editingHotkey.blur();
+    editingHotkey = el; el.classList.add("listening"); el.classList.remove("scroll");
+    if (isInput) { el.value = ""; el.placeholder = t("hk.press"); } else el.innerHTML = `<span class="kk">${t("hk.press")}</span>`;
+    el.focus();
+  });
+  el.addEventListener("blur", () => { if (editingHotkey !== el) return; editingHotkey = null; el.classList.remove("listening"); restore(); });
+  el.addEventListener("keydown", safe(async e => {
+    if (editingHotkey !== el) return;
+    e.preventDefault();
+    if (["Control", "Alt", "Shift", "Meta", "AltGraph"].includes(e.key)) return;
+    editingHotkey = null; el.classList.remove("listening");
+    let body;
+    if (e.key === "Escape") body = { target, clear: true };
+    else {
+      const key = obsKey(e);
+      if (!key) { toast(t("hk.unsupported"), true); el.blur(); restore(); return; }
+      body = { target, combo: { key, ctrl: e.ctrlKey, alt: e.altKey, shift: e.shiftKey, meta: e.metaKey } };
+    }
+    const r = await api("/api/hotkey", { body });
+    state.hotkeys[target] = r.text || "";
+    toast(r.text ? t("hk.saved", { k: r.text }) : t("hk.cleared"));
+    el.blur(); restore(); if (after) await after();
+  }));
+}
+
+// ---------- scènes liées ----------
+async function loadScenes() {
+  const box = $("#sceneList");
+  try {
+    const r = await api("/api/scenes");
+    if (!r.scenes.length) { box.innerHTML = `<div class="empty">${t("scenes.empty")}</div>`; return; }
+    box.className = "plist"; box.innerHTML = "";
+    for (const scene of r.scenes) {
+      const row = document.createElement("div"); row.className = "scene-row";
+      row.innerHTML = `<span class="scene-name"></span><select class="compact"></select>`;
+      $(".scene-name", row).textContent = scene;
+      const sel = $("select", row);
+      sel.add(new Option(t("scenes.none"), ""));
+      state.presets.forEach((p, i) => sel.add(new Option(`${i + 1}. ${p.name}`, p.id, false, r.map[scene] === p.id)));
+      sel.onchange = safe(async () => {
+        await api("/api/scenes", { body: { scene, preset: sel.value } });
+        toast(sel.value ? t("scenes.saved", { s: scene, p: sel.selectedOptions[0].text }) : t("scenes.cleared", { s: scene }));
+      });
+      box.appendChild(row);
+    }
+  } catch (e) { box.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+
+// ---------- grilles de cadrage ----------
+const GRIDS = {
+  none: "",
+  thirds: [33.333, 66.667].map(v => `<line x1="${v}" y1="0" x2="${v}" y2="100"/><line x1="0" y1="${v}" x2="100" y2="${v}"/>`).join(""),
+  grid: [25, 50, 75].map(v => `<line x1="${v}" y1="0" x2="${v}" y2="100"/><line x1="0" y1="${v}" x2="100" y2="${v}"/>`).join(""),
+  center: `<line x1="47" y1="50" x2="53" y2="50"/><line x1="50" y1="44.7" x2="50" y2="55.3"/><line class="faint" x1="50" y1="0" x2="50" y2="100"/><line class="faint" x1="0" y1="50" x2="100" y2="50"/>`,
+  diag: `<line x1="0" y1="0" x2="100" y2="100"/><line x1="100" y1="0" x2="0" y2="100"/>`,
+  safe: `<rect x="5" y="5" width="90" height="90"/><rect class="faint" x="10" y="10" width="80" height="80"/>`,
+};
+function applyGrid(g) { if (!(g in GRIDS)) g = "none"; $("#gridSel").value = g; $("#gridOverlay").innerHTML = GRIDS[g]; store.set("grid", g); }
+$("#gridSel").onchange = () => applyGrid($("#gridSel").value);
+applyGrid(store.get("grid", "none"));
+
+// ---------- aperçu ----------
+$("#previewFps").value = store.get("previewFps", "10");
+$("#previewFps").onchange = () => store.set("previewFps", $("#previewFps").value);
+const img = $("#previewImg");
+let lastUrl = null, frames = [];
+img.onload = () => { img.classList.add("loaded"); if (lastUrl && lastUrl !== img.src) URL.revokeObjectURL(lastUrl); lastUrl = img.src; };
+async function previewLoop() {
+  const fps = +$("#previewFps").value, t0 = performance.now();
+  if (fps > 0 && document.visibilityState === "visible") {
+    try {
+      const w = Math.min(1280, Math.round($(".viewfinder").clientWidth * (window.devicePixelRatio || 1)));
+      const r = await fetch(`/api/obs/preview.jpg?w=${w}&q=${fps >= 15 ? 60 : 75}`);
+      if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || "?"); }
+      img.src = URL.createObjectURL(await r.blob()); $("#previewMsg").textContent = "";
+      frames.push(performance.now()); frames = frames.filter(x => performance.now() - x < 1000);
+      $("#vfFps").hidden = false; $("#vfFps").textContent = t("preview.fps", { n: frames.length });
+    } catch (e) { img.classList.remove("loaded"); $("#vfFps").hidden = true; $("#previewMsg").textContent = t("preview.none", { e: e.message }); }
+  } else if (fps === 0) { img.classList.remove("loaded"); $("#vfFps").hidden = true; $("#previewMsg").textContent = t("preview.offMsg"); }
+  setTimeout(previewLoop, fps > 0 ? Math.max(0, 1000 / fps - (performance.now() - t0)) : 800);
+}
+
+// ---------- réglages vidéo (libellés fournis par OBS, dans sa langue) ----------
+const VIDEO_LISTS = ["res_type", "resolution", "frame_interval", "video_format", "color_space", "color_range", "buffering"];
+const VIDEO_BOOLS = ["flip_vertically", "autorotation", "hw_decode", "deactivate_when_not_showing"];
+let videoLoading = false;
+async function loadVideo() {
+  if (videoLoading) return; videoLoading = true;
+  const box = $("#videoForm");
+  try {
+    const d = await api("/api/obs/settings");
+    $("#videoSource").textContent = t("video.source", { s: d.source });
+    box.innerHTML = "";
+    for (const k of VIDEO_LISTS) {
+      const label = d.labels[k] || k;
+      const f = document.createElement("label"); f.className = "field";
+      f.innerHTML = `<span></span><select></select>`; $("span", f).textContent = label;
+      const sel = $("select", f), cur = d.values[k];
+      let found = false;
+      for (const o of d.options[k] || []) {
+        const op = new Option(o.label, JSON.stringify(o.value)); op.disabled = o.enabled === false;
+        if (JSON.stringify(o.value) === JSON.stringify(cur)) { op.selected = true; found = true; }
+        sel.add(op);
+      }
+      if (!found && cur != null) { const op = new Option(String(cur), JSON.stringify(cur)); op.selected = true; sel.add(op, 0); }
+      sel.onchange = safe(async () => { await api("/api/obs/settings", { body: { [k]: JSON.parse(sel.value) } });
+        toast(`${label} : ${sel.selectedOptions[0].text}`); setTimeout(loadVideo, 700); });
+      box.appendChild(f);
+    }
+    const checks = document.createElement("div"); checks.className = "full";
+    for (const k of VIDEO_BOOLS) {
+      if (!d.labels[k]) continue;
+      const f = document.createElement("label"); f.className = "check";
+      f.innerHTML = `<input type="checkbox"><span></span>`; $("span", f).textContent = d.labels[k];
+      const cb = $("input", f); cb.checked = !!d.values[k];
+      cb.onchange = safe(async () => { await api("/api/obs/settings", { body: { [k]: cb.checked } });
+        toast(t(cb.checked ? "video.on" : "video.off", { l: d.labels[k] })); });
+      checks.appendChild(f);
+    }
+    box.appendChild(checks);
+    box.insertAdjacentHTML("beforeend", `<p class="hint full" style="margin:0">${t("video.hint")}</p>`);
+  } catch (e) {
+    $("#videoSource").textContent = "";
+    box.innerHTML = `<div class="notice full"><strong>${t("video.unavailable")}</strong><p>${esc(e.message)}</p></div>`;
+  } finally { videoLoading = false; }
+}
+$("#btnVideoReload").onclick = () => { loadVideo(); toast(t("video.reloaded")); };
+
+// ---------- paramètres ----------
+function fillSettings() {
+  const s = state.settings;
+  $("#moveDur").value = s.move_duration; $("#zoomStep").value = s.zoom_step;
+  $("#spdPan").value = s.jog_speed.pan; $("#spdZoom").value = s.jog_speed.zoom;
+  $$("[data-hk]").forEach(inp => {
+    const target = inp.dataset.hk;
+    inp.value = state.hotkeys?.[target] || ""; inp.placeholder = t("hk.none");
+    captureHotkey(inp, target);
+  });
+  const base = origin();
+  $("#sdList").innerHTML = [["move.home", "/api/home"], ["move.flip", "/api/flip"], ["move.zoomIn", "/api/zoom/in"],
+    ["move.zoomOut", "/api/zoom/out"], ["set.sdSmall", "/api/nudge?axis=pan&delta=5"]].map(([label, path], i) =>
+    `<div><span>${t(label)}</span><div class="url-row"><code id="sd${i}">${esc(base + path)}</code><button class="btn sm icon" data-copy-from="sd${i}" title="Copy"><svg class="i"><use href="#i-copy"/></svg></button></div></div>`).join("")
+    + `<p class="hint" style="margin:0">${t("set.sdNudge")}</p>`;
+  $("#aboutLine").textContent = t("set.about", { v: state.version, o: state.obs, u: base });
+  loadSources(); loadDevices();
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-copy-from]"); if (!b) return;
+  copy($("#" + b.dataset.copyFrom).textContent).then(() => toast(t("toast.copied"))); });
+async function loadSources() {
+  const sel = $("#obsSource");
+  try {
+    const r = await api("/api/obs/sources");
+    sel.innerHTML = ""; sel.add(new Option(t("set.sourceAuto"), ""));
+    r.sources.forEach(s => sel.add(new Option(s, s, false, s === r.chosen)));
+  } catch { sel.innerHTML = ""; sel.add(new Option(t("set.sourceAuto"), "")); }
+}
+async function loadDevices() {
+  const sel = $("#camName");
+  try {
+    const r = await api("/api/camera/devices");
+    sel.innerHTML = ""; sel.add(new Option(t("set.cameraAuto"), ""));
+    r.devices.forEach(d => sel.add(new Option(d, d, false, d === state.settings.camera_name)));
+  } catch { sel.innerHTML = ""; sel.add(new Option(t("set.cameraAuto"), "")); }
+}
+$("#obsSource").onchange = safe(async () => { await api("/api/settings", { body: { source: $("#obsSource").value } }); refreshSource(); if (!$("[data-pane=video]").hidden) loadVideo(); });
+$("#camName").onchange = safe(async () => { await api("/api/settings", { body: { camera_name: $("#camName").value } });
+  compatSig = ""; resetAxes(); refresh(); refreshSource(); });
+$("#btnCamReco").onclick = safe(async () => {
+  const r = await api("/api/camera/reconnect", { method: "POST" });
+  toast(r.connected ? t("toast.camOk") : t("toast.camNotFound"), !r.connected);
+  compatSig = ""; resetAxes(); refresh(); refreshSource();
+});
+const saveMoves = safe(async () => {
+  await api("/api/settings", { body: { move_duration: +$("#moveDur").value, zoom_step: +$("#zoomStep").value,
+    jog_speed: { pan: +$("#spdPan").value, tilt: +$("#spdPan").value, zoom: +$("#spdZoom").value } } });
+  toast(t("set.movesSaved"));
+});
+["moveDur", "zoomStep", "spdPan", "spdZoom"].forEach(id => $("#" + id).addEventListener("change", saveMoves));
+
+// ---------- démarrage ----------
+applyI18n();
+applyMode(store.get("mode", "aim"));
+refresh(); setInterval(refresh, 400);
+setInterval(refreshSource, 5000);
+previewLoop();
+</script>
+</body>
+</html>
