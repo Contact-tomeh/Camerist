@@ -80,6 +80,10 @@ To publish a version: on GitHub, go to **Releases**, **Draft a new release**, cr
 
 To build locally, follow the instructions of the [OBS plugin template](https://github.com/obsproject/obs-plugintemplate), which this project is based on. The installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 
+## Credits
+
+Made by [Contact-tomeh](https://github.com/Contact-tomeh), with the help of [Claude](https://claude.ai) by Anthropic.
+
 ## License
 
 GPL-2.0-or-later, like OBS Studio. Includes [cpp-httplib](https://github.com/yhirose/cpp-httplib) (MIT).
