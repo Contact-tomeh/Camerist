@@ -1,4 +1,4 @@
-; Installateur Windows de Camerist (Inno Setup 6).
+﻿; Installateur Windows de Camerist (Inno Setup 6).
 ; Compilé automatiquement par .github/scripts/Package-Windows.ps1, qui passe :
 ;   /DMyAppVersion=0.1.0  /DSourceDir=...\release\<config>\camerist
 ;   /DOutputDir=...\release  /DOutputName=camerist-0.1.0-windows-x64-Installer
