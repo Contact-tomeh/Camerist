@@ -1,5 +1,7 @@
 # Camerist
 
+![Camerist: control your DJI Osmo Pocket 3 like a PTZ camera, right inside OBS](docs/camerist.png)
+
 **Turn a USB camera with a gimbal into a PTZ camera, right inside OBS Studio.**
 
 Camerist is an OBS plugin made for the DJI Osmo Pocket 3 in webcam mode, and it works with any USB camera that exposes pan, tilt or zoom controls to Windows. It adds a **Camerist** dock to OBS where you can aim the camera, zoom, save positions and recall them with a click, a hotkey, a Stream Deck button or a scene change.
