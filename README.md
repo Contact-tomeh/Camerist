@@ -6,6 +6,10 @@ Camerist is an OBS plugin made for the DJI Osmo Pocket 3 in webcam mode, and it 
 
 [Version française](README.fr.md)
 
+![Camerist dock: clicking saved positions moves the camera](docs/demo.gif)
+
+<sub>Demo recorded with a simulated camera and a drawn room.</sub>
+
 ## Features
 
 - Live preview of the camera source, with framing grids (thirds, 4×4, center cross, diagonals, safe areas)
