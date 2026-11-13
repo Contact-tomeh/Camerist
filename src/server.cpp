@@ -26,9 +26,9 @@ the Free Software Foundation; either version 2 of the License, or
 #include "thirdparty/httplib.h"
 
 #include "app.hpp"
-#include "plugin-support.h"
 
 #include <obs-module.h>
+#include <plugin-support.h> // après obs-module.h (déclare blogva)
 
 #include <QFile>
 #include <QJsonDocument>
@@ -152,7 +152,7 @@ static QJsonObject StateJson()
 			   {"version", PLUGIN_VERSION},
 			   {"obs", obs_get_version_string()},
 			   {"port", app().port},
-			   {"links", QJsonObject{{"compat", "https://github.com/OWNER/camerist#compatible-cameras"}}}};
+			   {"links", QJsonObject{{"compat", "https://github.com/Contact-tomeh/camerist#compatible-cameras"}}}};
 }
 
 /* ---------------------------------------------------------------------- */
