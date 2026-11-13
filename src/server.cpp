@@ -152,7 +152,11 @@ static QJsonObject StateJson()
 			   {"version", PLUGIN_VERSION},
 			   {"obs", obs_get_version_string()},
 			   {"port", app().port},
-			   {"links", QJsonObject{{"compat", "https://github.com/Contact-tomeh/camerist#compatible-cameras"}}}};
+			   {"links", QJsonObject{{"compat", "https://github.com/Contact-tomeh/camerist#compatible-cameras"},
+						 {"repo", "https://github.com/Contact-tomeh/camerist"},
+						 {"releases", "https://github.com/Contact-tomeh/camerist/releases"},
+						 {"issues", "https://github.com/Contact-tomeh/camerist/issues/new/choose"},
+						 {"author", "https://github.com/Contact-tomeh"}}}};
 }
 
 /* ---------------------------------------------------------------------- */
@@ -432,9 +436,45 @@ static void SetupRoutes(httplib::Server &s)
 }
 
 /* ---------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------- */
+/* Sécurité                                                                */
+/* Le serveur n'écoute que sur 127.0.0.1 : impossible de l'atteindre depuis */
+/* un autre ordinateur. Reste un cas : une page web ouverte dans un         */
+/* navigateur de ce PC pourrait essayer d'appeler ces adresses en douce.    */
+/* On refuse donc toute requête qui vient d'un autre site que le panneau.   */
+/* Le Stream Deck et les outils locaux n'envoient pas ces en-têtes de       */
+/* navigateur, ils passent normalement.                                     */
+/* ---------------------------------------------------------------------- */
+static bool AllowedHost(const std::string &host)
+{
+	std::string port = std::to_string(app().port);
+	return host == "127.0.0.1:" + port || host == "localhost:" + port;
+}
+
+static httplib::Server::HandlerResponse Guard(const Request &req, Response &res)
+{
+	bool ok = true;
+	/* bloque le « DNS rebinding » (un site qui se fait passer pour 127.0.0.1) */
+	if (!AllowedHost(req.get_header_value("Host")))
+		ok = false;
+	/* requête venue d'une autre page web */
+	std::string origin = req.get_header_value("Origin");
+	if (!origin.empty() && origin != "http://" + req.get_header_value("Host"))
+		ok = false;
+	std::string site = req.get_header_value("Sec-Fetch-Site");
+	if (!site.empty() && site != "same-origin" && site != "none")
+		ok = false;
+	if (ok)
+		return httplib::Server::HandlerResponse::Unhandled;
+	obs_log(LOG_WARNING, "blocked a request from another website (%s %s)", req.method.c_str(), req.path.c_str());
+	Send(res, QJsonObject{{"ok", false}, {"error", "forbidden"}}, 403);
+	return httplib::Server::HandlerResponse::Handled;
+}
+
 bool StartServer(int preferredPort)
 {
 	server = std::make_unique<httplib::Server>();
+	server->set_pre_routing_handler(Guard);
 	SetupRoutes(*server);
 	int port = 0;
 	for (int p = preferredPort; p < preferredPort + 10; p++) {

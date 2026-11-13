@@ -1,0 +1,23 @@
+name: Camera report / Retour sur une caméra
+description: Tell us whether Camerist works with your camera. / Dis-nous si Camerist marche avec ta caméra.
+labels: [camera]
+body:
+  - type: input
+    id: camera
+    attributes:
+      label: Camera model / Modèle de caméra
+    validations:
+      required: true
+  - type: checkboxes
+    id: works
+    attributes:
+      label: What works? / Qu'est-ce qui marche ?
+      options:
+        - label: Pan / Panoramique
+        - label: Tilt / Inclinaison
+        - label: Roll / Pellicule
+        - label: Zoom
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes

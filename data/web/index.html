@@ -236,6 +236,13 @@
   .sd-list { display: grid; gap: 8px; }
   .sd-list > div > span { font-size: 12.5px; font-weight: 500; }
 
+  .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 16px; padding: 12px 2px 4px;
+    border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
+  .foot .who { margin-right: auto; }
+  .foot b { color: var(--text); font-weight: 600; }
+  .foot a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+  .foot a:hover { color: var(--text); text-decoration: underline; }
+  .foot svg.i { width: 14px; height: 14px; }
   #toast { position: fixed; left: 50%; bottom: 16px; transform: translate(-50%, 6px); opacity: 0; pointer-events: none;
     background: var(--text); color: var(--bg); padding: 8px 13px; border-radius: 6px; font-weight: 500; font-size: 13px;
     transition: opacity .15s, transform .15s; max-width: calc(100vw - 32px); z-index: 20; }
@@ -285,6 +292,9 @@
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
   <symbol id="i-auto" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
   <symbol id="i-key" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M7 15h10"/></symbol>
+  <symbol id="i-git" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
+  <symbol id="i-bug" viewBox="0 0 24 24"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="6" y="7" width="12" height="13" rx="6"/><path d="M12 11v9M3 13h3M18 13h3M4 7l2.5 2M20 7l-2.5 2M4 20l2.5-2M20 20l-2.5-2"/></symbol>
 </svg>
 
 <header class="top">
@@ -498,11 +508,12 @@
           <div class="swatches" id="swatches"></div>
         </div>
 
-        <p class="hint" id="aboutLine" style="margin:14px 0 0"></p>
       </div>
     </div>
   </section>
 </main>
+
+<footer class="foot" id="footer"></footer>
 
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -550,7 +561,7 @@ const I18N = {
     "set.sdNudge": "To nudge, change axis (pan, tilt, roll, zoom) and delta (negative for the other way). Add ?d=0 to a position to go there without travel.",
     "set.sdSmall": "Small step to the right",
     "set.color": "Color", "set.colorHint": "Color of the main buttons and markers. Light or dark theme is at the top right.",
-    "set.about": "Camerist {v}, OBS {o}. Panel address: {u}",
+    "foot.by": "by", "foot.releases": "Updates", "foot.report": "Report a problem", "foot.obs": "OBS {o}",
     "accent.bleu": "Blue", "accent.violet": "Purple", "accent.vert": "Green", "accent.ambre": "Amber", "accent.rose": "Pink", "accent.tomate": "Tomato",
     "stat.camOk": "Camera connected and controllable", "stat.camFixed": "Camera connected but without movement controls", "stat.camMissing": "Camera not found",
     "stat.srcNone": "No camera source in OBS", "stat.srcTip": "OBS source used for the preview and video settings",
@@ -562,7 +573,7 @@ const I18N = {
     "toast.copied": "Address copied", "common.cancel": "Cancel", "common.yes": "Yes", "common.no": "No", "error.app": "Panel not responding",
   },
   fr: {
-    "app.name": "Camériste",
+    "app.name": "Camerist",
     "theme.auto": "Thème automatique (suit Windows)", "theme.light": "Thème clair", "theme.dark": "Thème sombre",
     "cam.title": "Caméra",
     "grid.label": "Grille", "grid.none": "Aucune", "grid.thirds": "Tiers", "grid.grid": "Quadrillage", "grid.center": "Croix centrale", "grid.diag": "Diagonales", "grid.safe": "Zones de sécurité",
@@ -598,7 +609,7 @@ const I18N = {
     "set.sdNudge": "Pour un petit pas, change axis (pan, tilt, roll, zoom) et delta (négatif pour l'autre sens). Ajoute ?d=0 à une position pour y aller sans trajet.",
     "set.sdSmall": "Petit pas à droite",
     "set.color": "Couleur", "set.colorHint": "Couleur des boutons principaux et des repères. Le thème clair ou sombre se change en haut à droite.",
-    "set.about": "Camériste {v}, OBS {o}. Adresse du panneau : {u}",
+    "foot.by": "par", "foot.releases": "Mises à jour", "foot.report": "Signaler un problème", "foot.obs": "OBS {o}",
     "accent.bleu": "Bleu", "accent.violet": "Violet", "accent.vert": "Vert", "accent.ambre": "Ambre", "accent.rose": "Rose", "accent.tomate": "Tomate",
     "stat.camOk": "Caméra connectée et pilotable", "stat.camFixed": "Caméra connectée mais sans commandes de mouvement", "stat.camMissing": "Caméra non trouvée",
     "stat.srcNone": "Aucune source caméra dans OBS", "stat.srcTip": "Source OBS utilisée pour l'aperçu et les réglages vidéo",
@@ -1084,7 +1095,7 @@ function fillSettings() {
     ["move.zoomOut", "/api/zoom/out"], ["set.sdSmall", "/api/nudge?axis=pan&delta=5"]].map(([label, path], i) =>
     `<div><span>${t(label)}</span><div class="url-row"><code id="sd${i}">${esc(base + path)}</code><button class="btn sm icon" data-copy-from="sd${i}" title="Copy"><svg class="i"><use href="#i-copy"/></svg></button></div></div>`).join("")
     + `<p class="hint" style="margin:0">${t("set.sdNudge")}</p>`;
-  $("#aboutLine").textContent = t("set.about", { v: state.version, o: state.obs, u: base });
+  renderFooter();
   loadSources(); loadDevices();
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-copy-from]"); if (!b) return;
@@ -1119,6 +1130,15 @@ const saveMoves = safe(async () => {
   toast(t("set.movesSaved"));
 });
 ["moveDur", "zoomStep", "spdPan", "spdZoom"].forEach(id => $("#" + id).addEventListener("change", saveMoves));
+
+// ---------- pied de page ----------
+function renderFooter() {
+  const L = state.links || {};
+  const a = (href, icon, text) => `<a href="${esc(href)}" target="_blank" rel="noopener"><svg class="i"><use href="#${icon}"/></svg>${esc(text)}</a>`;
+  $("#footer").innerHTML =
+    `<span class="who"><b>Camerist ${esc(state.version)}</b> ${t("foot.by")} <a href="${esc(L.author)}" target="_blank" rel="noopener">tomi_tomeh</a>, ${esc(t("foot.obs", { o: state.obs }))}</span>` +
+    a(L.repo, "i-git", "GitHub") + a(L.releases, "i-download", t("foot.releases")) + a(L.issues, "i-bug", t("foot.report"));
+}
 
 // ---------- démarrage ----------
 applyI18n();

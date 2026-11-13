@@ -63,6 +63,14 @@ Axes are `pan`, `tilt`, `roll` and `zoom`. Add `?d=0` to a position address to j
 
 The local server only listens on `127.0.0.1`, it cannot be reached from another computer.
 
+## Support
+
+Found a bug, have an idea, or tested another camera? [Open an issue](https://github.com/Contact-tomeh/camerist/issues/new/choose), in English or French. The dock has a **Report a problem** link at the bottom.
+
+For security problems, please report them privately: see [SECURITY.md](SECURITY.md).
+
+The Stream Deck addresses are the same for everyone and only work on your own computer, so sharing them is harmless.
+
 ## Translations
 
 The dock follows the OBS language. Texts live in two places:

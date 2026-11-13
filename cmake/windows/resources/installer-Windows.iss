@@ -59,11 +59,11 @@ Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
 
 [CustomMessages]
 en.ObsNotFound=OBS Studio does not seem to be installed on this computer.%n%nCamerist is a plugin for OBS Studio 31 or newer. You can install it anyway and it will load the next time OBS starts.%n%nContinue?
-fr.ObsNotFound=OBS Studio ne semble pas installé sur cet ordinateur.%n%nCamériste est un plugin pour OBS Studio 31 ou plus récent. Tu peux l'installer quand même, il se chargera au prochain lancement d'OBS.%n%nContinuer ?
+fr.ObsNotFound=OBS Studio ne semble pas installé sur cet ordinateur.%n%nCamerist est un plugin pour OBS Studio 31 ou plus récent. Tu peux l'installer quand même, il se chargera au prochain lancement d'OBS.%n%nContinuer ?
 
 [Messages]
 en.FinishedLabelNoIcons=Camerist is installed. Start OBS: the Camerist dock appears on its own (otherwise, open the Docks menu and tick Camerist).
-fr.FinishedLabelNoIcons=Camériste est installé. Lance OBS : le dock Camériste apparaît tout seul (sinon, ouvre le menu Docks et coche Camériste).
+fr.FinishedLabelNoIcons=Camerist est installé. Lance OBS : le dock Camerist apparaît tout seul (sinon, ouvre le menu Docks et coche Camerist).
 
 [InstallDelete]
 ; Retire les fichiers d'une version précédente avant de copier les nouveaux.
