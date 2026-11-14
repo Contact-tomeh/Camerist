@@ -195,11 +195,16 @@
     font-weight: 600; border-radius: 5px; width: 100%; }
   input.pr-name:hover { border-color: var(--line-strong); }
   input.pr-name:focus { background: var(--field); border-color: var(--line-strong); }
-  .pr-vals { grid-area: vals; color: var(--muted); font-size: 12.5px; min-width: 0; display: flex; align-items: center; gap: 8px; }
+  .pr-vals { grid-area: vals; color: var(--muted); font-size: 12.5px; min-width: 0; display: flex; align-items: center; gap: 9px; }
   .pr-vals .pv { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pr-vals .pv span + span { margin-left: 9px; }
-  select.pr-speed { width: auto; height: 24px; flex: none; font-size: 12px; padding: 0 22px 0 7px; border-radius: 5px; background-position: right 7px center; color: var(--muted); }
-  select.pr-speed.custom { color: var(--text); border-color: var(--accent-line); }
+  .pr-vals .pv { flex: 0 1 auto; }
+  .pr-speed { position: relative; flex: none; display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 5px; margin: 0 -5px 0 0;
+    border-radius: 4px; color: var(--faint); white-space: nowrap; }
+  .pr-speed .i { width: 13px; height: 13px; }
+  .pr-speed:hover, .pr-speed:focus-within { background: var(--field); color: var(--text); }
+  .pr-speed.custom { color: var(--accent); }
+  .pr-speed select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; padding: 0; border: 0; }
   input.pr-name:hover:not(:focus) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%239a9ca3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; padding-right: 26px; }
 
   /* rondes */
@@ -330,6 +335,7 @@
   <symbol id="i-key" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M7 15h10"/></symbol>
   <symbol id="i-git" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor" stroke="none"/></symbol>
@@ -663,7 +669,7 @@ const I18N = {
     "tab.presets": "Positions", "tab.scenes": "Scènes", "tab.video": "Vidéo", "tab.settings": "Paramètres",
     "tab.tours": "Rondes",
     "move.next": "Position suivante", "move.prev": "Position précédente",
-    "speed.title": "Durée du trajet vers cette position", "speed.default": "Défaut ({s} s)", "speed.instant": "Instantané", "speed.s": "{s} s",
+    "speed.title": "Durée du trajet vers cette position", "speed.default": "Par défaut ({s} s)", "speed.instant": "Instantané", "speed.s": "{s} s",
     "presets.rename": "Clique pour renommer",
     "tours.intro": "Une ronde fait passer la caméra par plusieurs positions, avec une pause sur chacune, une fois ou en boucle.",
     "tours.new": "Nouvelle ronde", "tours.default": "Ronde {n}", "tours.needPresets": "Enregistre d'abord quelques positions",
@@ -977,16 +983,17 @@ function renderPresets() {
         <button class="btn sm icon ghost" data-act="update" title="${esc(t("presets.update"))}"><svg class="i"><use href="#i-refresh"/></svg></button>
         <button class="btn sm icon ghost" data-act="del" title="${esc(t("presets.delete"))}"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>
-      <div class="pr-vals"><span class="pv">${vals}</span><select class="pr-speed" title="${esc(t("speed.title"))}"></select></div>`;
+      <div class="pr-vals"><span class="pv">${vals}</span><label class="pr-speed" title="${esc(t("speed.title"))}"><svg class="i"><use href="#i-clock"/></svg><span class="sv"></span><select aria-label="${esc(t("speed.title"))}"></select></label></div>`;
     $(".pr-name", el).value = p.name;
     $(".pr-name", el).title = t("presets.rename");
-    const sp = $(".pr-speed", el);
+    const sp = $(".pr-speed select", el), spBox = $(".pr-speed", el);
     sp.add(new Option(t("speed.default", { s: num(moveDur, 1) }), ""));
     sp.add(new Option(t("speed.instant"), "0"));
     for (const v of [0.5, 1, 1.5, 2, 3, 5, 8]) sp.add(new Option(t("speed.s", { s: num(v, v % 1 ? 1 : 0) }), String(v)));
     if (p.duration != null && ![...sp.options].some(o => o.value === String(p.duration))) sp.add(new Option(t("speed.s", { s: num(p.duration, 1) }), String(p.duration)));
     sp.value = p.duration != null ? String(p.duration) : "";
-    sp.classList.toggle("custom", p.duration != null);
+    spBox.classList.toggle("custom", p.duration != null);
+    $(".sv", el).textContent = p.duration == null ? t("speed.s", { s: num(moveDur, moveDur % 1 ? 1 : 0) }) : p.duration === 0 ? t("speed.instant") : t("speed.s", { s: num(p.duration, p.duration % 1 ? 1 : 0) });
     sp.onchange = safe(async () => {
       await api(`/api/presets/${p.id}`, { method: "PATCH", body: { duration: sp.value === "" ? null : +sp.value } });
       await reloadPresets();
