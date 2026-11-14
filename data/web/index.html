@@ -294,6 +294,7 @@
   <symbol id="i-key" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M7 15h10"/></symbol>
   <symbol id="i-git" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.2-8.6C1.3 8.4 3 5 6.3 5c2 0 3.3 1.1 4 2.3h3.4C14.4 6.1 15.7 5 17.7 5 21 5 22.7 8.4 21.2 11.4 19 15.6 12 20 12 20z"/></symbol>
   <symbol id="i-bug" viewBox="0 0 24 24"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="6" y="7" width="12" height="13" rx="6"/><path d="M12 11v9M3 13h3M18 13h3M4 7l2.5 2M20 7l-2.5 2M4 20l2.5-2M20 20l-2.5-2"/></symbol>
 </svg>
 
@@ -561,7 +562,7 @@ const I18N = {
     "set.sdNudge": "To nudge, change axis (pan, tilt, roll, zoom) and delta (negative for the other way). Add ?d=0 to a position to go there without travel.",
     "set.sdSmall": "Small step to the right",
     "set.color": "Color", "set.colorHint": "Color of the main buttons and markers. Light or dark theme is at the top right.",
-    "foot.by": "by", "foot.releases": "Updates", "foot.report": "Report a problem", "foot.obs": "OBS {o}",
+    "foot.by": "by", "foot.releases": "Updates", "foot.report": "Report a problem", "foot.support": "Support", "foot.obs": "OBS {o}",
     "accent.bleu": "Blue", "accent.violet": "Purple", "accent.vert": "Green", "accent.ambre": "Amber", "accent.rose": "Pink", "accent.tomate": "Tomato",
     "stat.camOk": "Camera connected and controllable", "stat.camFixed": "Camera connected but without movement controls", "stat.camMissing": "Camera not found",
     "stat.srcNone": "No camera source in OBS", "stat.srcTip": "OBS source used for the preview and video settings",
@@ -609,7 +610,7 @@ const I18N = {
     "set.sdNudge": "Pour un petit pas, change axis (pan, tilt, roll, zoom) et delta (négatif pour l'autre sens). Ajoute ?d=0 à une position pour y aller sans trajet.",
     "set.sdSmall": "Petit pas à droite",
     "set.color": "Couleur", "set.colorHint": "Couleur des boutons principaux et des repères. Le thème clair ou sombre se change en haut à droite.",
-    "foot.by": "par", "foot.releases": "Mises à jour", "foot.report": "Signaler un problème", "foot.obs": "OBS {o}",
+    "foot.by": "par", "foot.releases": "Mises à jour", "foot.report": "Signaler un problème", "foot.support": "Soutenir", "foot.obs": "OBS {o}",
     "accent.bleu": "Bleu", "accent.violet": "Violet", "accent.vert": "Vert", "accent.ambre": "Ambre", "accent.rose": "Rose", "accent.tomate": "Tomate",
     "stat.camOk": "Caméra connectée et pilotable", "stat.camFixed": "Caméra connectée mais sans commandes de mouvement", "stat.camMissing": "Caméra non trouvée",
     "stat.srcNone": "Aucune source caméra dans OBS", "stat.srcTip": "Source OBS utilisée pour l'aperçu et les réglages vidéo",
@@ -1137,7 +1138,8 @@ function renderFooter() {
   const a = (href, icon, text) => `<a href="${esc(href)}" target="_blank" rel="noopener"><svg class="i"><use href="#${icon}"/></svg>${esc(text)}</a>`;
   $("#footer").innerHTML =
     `<span class="who"><b>Camerist ${esc(state.version)}</b> ${t("foot.by")} <a href="${esc(L.author)}" target="_blank" rel="noopener">tomi_tomeh</a>, ${esc(t("foot.obs", { o: state.obs }))}</span>` +
-    a(L.repo, "i-git", "GitHub") + a(L.releases, "i-download", t("foot.releases")) + a(L.issues, "i-bug", t("foot.report"));
+    a(L.repo, "i-git", "GitHub") + a(L.releases, "i-download", t("foot.releases")) + a(L.issues, "i-bug", t("foot.report")) +
+    (L.support ? a(L.support, "i-heart", t("foot.support")) : "");
 }
 
 // ---------- démarrage ----------

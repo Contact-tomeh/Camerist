@@ -156,7 +156,8 @@ static QJsonObject StateJson()
 						 {"repo", "https://github.com/Contact-tomeh/camerist"},
 						 {"releases", "https://github.com/Contact-tomeh/camerist/releases"},
 						 {"issues", "https://github.com/Contact-tomeh/camerist/issues/new/choose"},
-						 {"author", "https://github.com/Contact-tomeh"}}}};
+						 {"author", "https://github.com/Contact-tomeh"},
+						 {"support", "https://ko-fi.com/tomehdev"}}}};
 }
 
 /* ---------------------------------------------------------------------- */

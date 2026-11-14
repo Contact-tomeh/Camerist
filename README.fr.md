@@ -55,6 +55,15 @@ Pour un problème de sécurité, signale-le en privé : voir [SECURITY.md](SECUR
 
 Les adresses du Stream Deck sont les mêmes pour tout le monde et ne marchent que sur ton propre ordinateur : les partager ne pose aucun risque.
 
+## Soutenir le projet
+
+Camerist est gratuit et le restera. S'il t'aide pendant tes lives, tu peux soutenir son développement :
+
+[![Me soutenir sur Ko-fi](https://img.shields.io/badge/Ko--fi-Me%20soutenir-3d7af5?logo=kofi&logoColor=white)](https://ko-fi.com/tomehdev)
+[![Faire un don sur Liberapay](https://img.shields.io/badge/Liberapay-Faire%20un%20don-3d7af5?logo=liberapay&logoColor=white)](https://liberapay.com/TomehDev/)
+
+Ko-fi pour un don ponctuel, Liberapay pour un soutien régulier.
+
 ## Crédits
 
 Fait par [Contact-tomeh](https://github.com/Contact-tomeh), avec l'aide de [Claude](https://claude.ai) d'Anthropic.

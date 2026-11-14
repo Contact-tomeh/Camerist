@@ -94,6 +94,15 @@ To publish a version: on GitHub, go to **Releases**, **Draft a new release**, cr
 
 To build locally, follow the instructions of the [OBS plugin template](https://github.com/obsproject/obs-plugintemplate), which this project is based on. The installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 
+## Support the project
+
+Camerist is free and will stay free. If it helps your streams, you can support its development:
+
+[![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20me-3d7af5?logo=kofi&logoColor=white)](https://ko-fi.com/tomehdev)
+[![Donate on Liberapay](https://img.shields.io/badge/Liberapay-Donate-3d7af5?logo=liberapay&logoColor=white)](https://liberapay.com/TomehDev/)
+
+Ko-fi is for one-off donations, Liberapay for regular ones.
+
 ## Credits
 
 Made by [Contact-tomeh](https://github.com/Contact-tomeh), with the help of [Claude](https://claude.ai) by Anthropic.
