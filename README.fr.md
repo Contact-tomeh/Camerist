@@ -16,13 +16,15 @@ Camerist est un plugin OBS pensé pour la DJI Osmo Pocket 3 en mode webcam. Il m
 
 - Aperçu de la source caméra, avec grilles de cadrage (tiers, quadrillage, croix centrale, diagonales, zones de sécurité)
 - Viseur cliquable (clique pour viser, glisse pour suivre) ou curseurs classiques pour le panoramique, l'inclinaison, la pellicule et le zoom
-- Positions enregistrées, avec trajet doux ou direct, recherche et réorganisation
-- Un raccourci OBS par position, plus remise à zéro, retourner de 180°, zoomer et dézoomer (visibles aussi dans Paramètres d'OBS, Raccourcis clavier)
-- Positions liées aux scènes : quand OBS change de scène, la caméra va à la position choisie
+- Positions enregistrées, avec trajet doux ou direct, une durée de trajet propre à chaque position, recherche et réorganisation
+- Rondes : la caméra passe par les positions de ton choix, dans l'ordre voulu, avec une pause sur chacune, une fois ou en boucle
+- Un raccourci OBS par position et par ronde, plus position suivante et précédente, arrêter la ronde, remise à zéro, retourner de 180°, zoomer et dézoomer (visibles aussi dans Paramètres d'OBS, Raccourcis clavier)
+- Positions ou rondes liées aux scènes : quand OBS change de scène, la caméra va à la position choisie ou lance la ronde
 - Stream Deck avec de simples adresses web
 - Tous les réglages de la source caméra au même endroit : résolution, FPS, format vidéo, espace et gamme de couleurs YUV, mémoire tampon, retournement, rotation, décodage matériel
 - Thème clair, sombre ou automatique, six couleurs d'accent
 - Anglais et français, selon la langue d'OBS
+- Une alerte discrète quand une nouvelle version sort, avec un lien vers sa page
 
 La vidéo reste dans OBS : Camerist envoie seulement des ordres de mouvement à la caméra, comme les curseurs de la fenêtre « Configurer la vidéo » de la source.
 
@@ -45,7 +47,7 @@ Voir le [tableau dans le README anglais](README.md#compatible-cameras). Pour vé
 
 ## Stream Deck
 
-Action **Système > Site web**, coche **Accès en arrière-plan** et colle une adresse (liste complète dans le dock, onglet Paramètres). Pour une position, utilise le bouton de copie à côté d'elle.
+Action **Système > Site web**, coche **Accès en arrière-plan** et colle une adresse (liste complète dans le dock, onglet Paramètres). Pour une position ou une ronde, utilise le bouton de copie à côté d'elle. Position suivante : `http://127.0.0.1:8765/api/next`, précédente : `/api/prev`, arrêter la ronde : `/api/tour/stop`. Tout mouvement manuel arrête la ronde en cours.
 
 ## Support
 

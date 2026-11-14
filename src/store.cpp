@@ -25,6 +25,7 @@ static QJsonObject Defaults()
 		{"zoom_step", 25},
 		{"nudge_step", 5},
 		{"presets", QJsonArray()},
+		{"tours", QJsonArray()},
 		{"scenes", QJsonObject()},
 		{"ui", QJsonObject{{"theme", "auto"}, {"accent", "bleu"}}},
 	};
@@ -126,4 +127,23 @@ std::string Store::PresetForScene(const std::string &scene)
 {
 	std::lock_guard<std::mutex> lock(mutex);
 	return data.value("scenes").toObject().value(QString::fromStdString(scene)).toString().toStdString();
+}
+
+QJsonArray Store::Tours()
+{
+	std::lock_guard<std::mutex> lock(mutex);
+	return data.value("tours").toArray();
+}
+
+QJsonObject Store::FindTour(const std::string &key)
+{
+	QString k = QString::fromStdString(key);
+	QJsonArray list = Tours();
+	for (int i = 0; i < list.size(); i++) {
+		QJsonObject t = list[i].toObject();
+		if (t.value("id").toString() == k || QString::number(i + 1) == k ||
+		    t.value("name").toString().compare(k, Qt::CaseInsensitive) == 0)
+			return t;
+	}
+	return QJsonObject();
 }

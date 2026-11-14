@@ -195,8 +195,44 @@
     font-weight: 600; border-radius: 5px; width: 100%; }
   input.pr-name:hover { border-color: var(--line-strong); }
   input.pr-name:focus { background: var(--field); border-color: var(--line-strong); }
-  .pr-vals { grid-area: vals; color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-  .pr-vals span + span { margin-left: 9px; }
+  .pr-vals { grid-area: vals; color: var(--muted); font-size: 12.5px; min-width: 0; display: flex; align-items: center; gap: 8px; }
+  .pr-vals .pv { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pr-vals .pv span + span { margin-left: 9px; }
+  select.pr-speed { width: auto; height: 24px; flex: none; font-size: 12px; padding: 0 22px 0 7px; border-radius: 5px; background-position: right 7px center; color: var(--muted); }
+  select.pr-speed.custom { color: var(--text); border-color: var(--accent-line); }
+  input.pr-name:hover:not(:focus) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%239a9ca3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; padding-right: 26px; }
+
+  /* rondes */
+  .tourbar { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 8px 8px 8px 12px; border-radius: 8px;
+    background: var(--accent-soft); border: 1px solid var(--accent-line); font-size: 13px; }
+  .tourbar .tb-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tourbar .tb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .tour { border-top: 1px solid var(--line); }
+  .tour:first-child { border-top: 0; }
+  .tour > .pr { border-top: 0; }
+  .tour.running > .pr { background: var(--accent-soft); }
+  .tour-body { padding: 4px 10px 12px 58px; display: grid; gap: 8px; }
+  .steps { display: grid; gap: 6px; }
+  .step { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto auto auto; grid-template-areas: "n sel pause up rm"; gap: 6px; align-items: center; }
+  .step .sn { grid-area: n; } .step select { grid-area: sel; } .step .pause { grid-area: pause; }
+  .step [data-step=up] { grid-area: up; } .step [data-step=rm] { grid-area: rm; }
+  .step .sn { color: var(--faint); font-size: 12px; text-align: right; }
+  .step select { height: 30px; }
+  .step .pause { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 12.5px; }
+  .step .pause input { width: 62px; height: 30px; padding: 0 6px; }
+  @media (max-width: 520px) {
+    .tour-body { padding-left: 10px; }
+    .steps { gap: 10px; }
+    .step { grid-template-columns: 18px minmax(0, 1fr) auto auto; grid-template-areas: "n sel sel sel" ". pause up rm"; row-gap: 4px; }
+  }
+
+  /* mise à jour */
+  .update-card { position: fixed; right: 16px; bottom: 16px; z-index: 30; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px);
+    background: var(--panel); border: 1px solid var(--accent-line); border-radius: 10px; padding: 10px 8px 10px 14px; box-shadow: 0 8px 30px rgba(0,0,0,.35); font-size: 13px; }
+  .update-card b { font-weight: 600; }
+  .foot a.new { color: var(--accent); }
+  .foot a.new::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-left: 2px; }
   .pr-side { grid-area: side; display: flex; align-items: center; gap: 2px; }
   .pr-key { height: 28px; min-width: 28px; max-width: 108px; padding: 0 7px; border-radius: 5px; border: 1px dashed var(--line-strong);
     background: transparent; color: var(--muted); cursor: pointer; font-size: 12.5px; font-weight: 500; margin-right: 4px;
@@ -294,6 +330,10 @@
   <symbol id="i-key" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M7 15h10"/></symbol>
   <symbol id="i-git" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></symbol>
   <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.2-8.6C1.3 8.4 3 5 6.3 5c2 0 3.3 1.1 4 2.3h3.4C14.4 6.1 15.7 5 17.7 5 21 5 22.7 8.4 21.2 11.4 19 15.6 12 20 12 20z"/></symbol>
   <symbol id="i-bug" viewBox="0 0 24 24"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="6" y="7" width="12" height="13" rx="6"/><path d="M12 11v9M3 13h3M18 13h3M4 7l2.5 2M20 7l-2.5 2M4 20l2.5-2M20 20l-2.5-2"/></symbol>
 </svg>
@@ -353,6 +393,8 @@
       <span class="vf-fps" id="vfFps" hidden></span>
       <div class="vf-read" id="vfRead"><span><b>Pan</b><em id="rPan">0°</em></span><span><b>Tilt</b><em id="rTilt">0°</em></span><span><b>Zoom</b><em id="rZoom">1.00×</em></span></div>
     </div>
+
+    <div id="tourBar" class="tourbar" hidden></div>
 
     <div id="controls">
       <div class="subhead">
@@ -423,6 +465,7 @@
     <div class="side-inner">
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" data-tab="presets"><span data-t="tab.presets"></span> <span class="n" id="presetCount"></span></button>
+        <button class="tab" role="tab" data-tab="tours"><span data-t="tab.tours"></span> <span class="n" id="tourCount"></span></button>
         <button class="tab" role="tab" data-tab="scenes" data-t="tab.scenes"></button>
         <button class="tab" role="tab" data-tab="video" data-t="tab.video"></button>
         <button class="tab" role="tab" data-tab="settings" data-t="tab.settings"></button>
@@ -449,6 +492,15 @@
       </div>
 
       <!-- Scenes -->
+      <!-- Rondes -->
+      <div class="tab-body" data-pane="tours" hidden>
+        <div class="ptools">
+          <p class="hint" style="margin:0;flex:1" data-t="tours.intro"></p>
+          <button class="btn primary" id="btnNewTour"><svg class="i"><use href="#i-plus"/></svg><span data-t="tours.new"></span></button>
+        </div>
+        <div id="tours"></div>
+      </div>
+
       <div class="tab-body" data-pane="scenes" hidden>
         <p class="hint" style="margin:0 0 12px" data-t="scenes.intro"></p>
         <div id="sceneList"></div>
@@ -494,6 +546,9 @@
             <label class="field"><span data-t="move.flip"></span><input type="text" class="hk" data-hk="flip" readonly></label>
             <label class="field"><span data-t="move.zoomIn"></span><input type="text" class="hk" data-hk="zoom_in" readonly></label>
             <label class="field"><span data-t="move.zoomOut"></span><input type="text" class="hk" data-hk="zoom_out" readonly></label>
+            <label class="field"><span data-t="move.next"></span><input type="text" class="hk" data-hk="next" readonly></label>
+            <label class="field"><span data-t="move.prev"></span><input type="text" class="hk" data-hk="prev" readonly></label>
+            <label class="field"><span data-t="tours.stop"></span><input type="text" class="hk" data-hk="tour_stop" readonly></label>
           </div>
         </div>
 
@@ -517,6 +572,7 @@
 <footer class="foot" id="footer"></footer>
 
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="updateCard" class="update-card" role="status" hidden></div>
 
 <script>
 /* ======================================================================
@@ -539,6 +595,24 @@ const I18N = {
     "move.zoomIn": "Zoom in", "move.zoomOut": "Zoom out", "move.rollLeft": "Tilt image left", "move.rollRight": "Tilt image right", "move.flip": "Turn 180°",
     "axis.pan": "Pan", "axis.tilt": "Tilt", "axis.zoom": "Zoom", "axis.roll": "Roll",
     "tab.presets": "Positions", "tab.scenes": "Scenes", "tab.video": "Video", "tab.settings": "Settings",
+    "tab.tours": "Tours",
+    "move.next": "Next position", "move.prev": "Previous position",
+    "speed.title": "Travel time to this position", "speed.default": "Default ({s} s)", "speed.instant": "Instant", "speed.s": "{s} s",
+    "presets.rename": "Click to rename",
+    "tours.intro": "A tour moves the camera through several positions, with a pause on each one, once or on a loop.",
+    "tours.new": "New tour", "tours.default": "Tour {n}", "tours.needPresets": "Save a few positions first",
+    "tours.emptyTitle": "No tours yet", "tours.empty": "Create a tour to move the camera through your positions on its own.",
+    "tours.start": "Start the tour", "tours.stop": "Stop the tour", "tours.edit": "Edit the steps", "tours.copy": "Copy the Stream Deck address (start / stop)",
+    "tours.delete": "Delete", "tours.confirmDelete": "Delete the tour “{n}”?", "tours.deleted": "“{n}” deleted",
+    "tours.summary": "{n} positions", "tours.summary1": "1 position", "tours.loop": "on a loop", "tours.once": "once",
+    "tours.loopLabel": "Start over at the end (loop)", "tours.pause": "Pause", "tours.addStep": "Add a position",
+    "tours.stepUp": "Move up", "tours.stepRemove": "Remove", "tours.saved": "Tour saved",
+    "tours.running": "“{n}” running, {i}/{c}", "tours.started": "Tour “{n}” started", "tours.stopped": "Tour stopped",
+    "tours.manual": "Any manual move stops the tour.",
+    "scenes.groupPresets": "Positions", "scenes.groupTours": "Tours", "scenes.tourPrefix": "Tour: {n}",
+    "upd.available": "<b>Camerist {v}</b> is available.", "upd.download": "Download", "upd.close": "Close", "foot.updateNew": "Update available",
+    "set.sdNext": "Next position", "set.sdPrev": "Previous position", "set.sdTourStop": "Stop the tour",
+    "set.sdTours": "To start or stop a tour, copy its address from the Tours tab.",
     "presets.search": "Search positions", "presets.save": "Save", "presets.name": "Position name", "presets.saveCurrent": "Save current position",
     "presets.emptyTitle": "No positions yet", "presets.empty": "Frame the camera the way you like, then click “Save”.", "presets.noMatch": "No position contains “{q}”.",
     "presets.go": "Go to this position", "presets.up": "Move up in the list", "presets.copy": "Copy the Stream Deck address", "presets.update": "Replace with the current position",
@@ -546,7 +620,7 @@ const I18N = {
     "presets.saved": "“{n}” saved", "presets.updated": "“{n}” updated", "presets.deleted": "“{n}” deleted", "presets.copied": "Address copied, paste it into the Stream Deck",
     "hk.add": "Add a keyboard shortcut", "hk.change": "Shortcut: {k}. Click to change it", "hk.press": "Press keys…", "hk.none": "None",
     "hk.saved": "Shortcut {k} saved", "hk.cleared": "Shortcut removed", "hk.unsupported": "This key cannot be used as a shortcut",
-    "scenes.intro": "When OBS switches to a scene, the camera moves to the position you pick here.", "scenes.none": "No position",
+    "scenes.intro": "When OBS switches to a scene, the camera moves to the position or starts the tour you pick here.", "scenes.none": "Nothing",
     "scenes.empty": "No scenes found in OBS.", "scenes.saved": "{s}: {p}", "scenes.cleared": "{s}: no position",
     "video.reload": "Reload from OBS", "video.source": "Source: {s}", "video.hint": "Each change applies right away. The camera may cut out for a second in OBS.",
     "video.unavailable": "Video settings unavailable", "video.reloaded": "Settings reloaded from OBS", "video.on": "{l}: on", "video.off": "{l}: off",
@@ -587,6 +661,24 @@ const I18N = {
     "move.zoomIn": "Zoomer", "move.zoomOut": "Dézoomer", "move.rollLeft": "Pencher à gauche", "move.rollRight": "Pencher à droite", "move.flip": "Retourner de 180°",
     "axis.pan": "Panoramique", "axis.tilt": "Inclinaison", "axis.zoom": "Zoom", "axis.roll": "Pellicule",
     "tab.presets": "Positions", "tab.scenes": "Scènes", "tab.video": "Vidéo", "tab.settings": "Paramètres",
+    "tab.tours": "Rondes",
+    "move.next": "Position suivante", "move.prev": "Position précédente",
+    "speed.title": "Durée du trajet vers cette position", "speed.default": "Défaut ({s} s)", "speed.instant": "Instantané", "speed.s": "{s} s",
+    "presets.rename": "Clique pour renommer",
+    "tours.intro": "Une ronde fait passer la caméra par plusieurs positions, avec une pause sur chacune, une fois ou en boucle.",
+    "tours.new": "Nouvelle ronde", "tours.default": "Ronde {n}", "tours.needPresets": "Enregistre d'abord quelques positions",
+    "tours.emptyTitle": "Aucune ronde pour l'instant", "tours.empty": "Crée une ronde pour que la caméra passe toute seule par tes positions.",
+    "tours.start": "Lancer la ronde", "tours.stop": "Arrêter la ronde", "tours.edit": "Modifier les étapes", "tours.copy": "Copier l'adresse pour le Stream Deck (lancer / arrêter)",
+    "tours.delete": "Supprimer", "tours.confirmDelete": "Supprimer la ronde « {n} » ?", "tours.deleted": "« {n} » supprimée",
+    "tours.summary": "{n} positions", "tours.summary1": "1 position", "tours.loop": "en boucle", "tours.once": "une fois",
+    "tours.loopLabel": "Recommencer à la fin (en boucle)", "tours.pause": "Pause", "tours.addStep": "Ajouter une position",
+    "tours.stepUp": "Monter", "tours.stepRemove": "Retirer", "tours.saved": "Ronde enregistrée",
+    "tours.running": "« {n} » en cours, {i}/{c}", "tours.started": "Ronde « {n} » lancée", "tours.stopped": "Ronde arrêtée",
+    "tours.manual": "Tout mouvement manuel arrête la ronde.",
+    "scenes.groupPresets": "Positions", "scenes.groupTours": "Rondes", "scenes.tourPrefix": "Ronde : {n}",
+    "upd.available": "<b>Camerist {v}</b> est disponible.", "upd.download": "Télécharger", "upd.close": "Fermer", "foot.updateNew": "Mise à jour disponible",
+    "set.sdNext": "Position suivante", "set.sdPrev": "Position précédente", "set.sdTourStop": "Arrêter la ronde",
+    "set.sdTours": "Pour lancer ou arrêter une ronde, copie son adresse depuis l'onglet Rondes.",
     "presets.search": "Chercher une position", "presets.save": "Enregistrer", "presets.name": "Nom de la position", "presets.saveCurrent": "Enregistrer la position actuelle",
     "presets.emptyTitle": "Aucune position pour l'instant", "presets.empty": "Cadre la caméra comme tu veux, puis clique sur « Enregistrer ».", "presets.noMatch": "Aucune position ne contient « {q} ».",
     "presets.go": "Aller à cette position", "presets.up": "Monter dans la liste", "presets.copy": "Copier l'adresse pour le Stream Deck", "presets.update": "Remplacer par la position actuelle",
@@ -594,7 +686,7 @@ const I18N = {
     "presets.saved": "« {n} » enregistrée", "presets.updated": "« {n} » mise à jour", "presets.deleted": "« {n} » supprimée", "presets.copied": "Adresse copiée, colle-la dans le Stream Deck",
     "hk.add": "Ajouter un raccourci clavier", "hk.change": "Raccourci : {k}. Clique pour le changer", "hk.press": "Appuie sur les touches…", "hk.none": "Aucun",
     "hk.saved": "Raccourci {k} enregistré", "hk.cleared": "Raccourci effacé", "hk.unsupported": "Cette touche ne peut pas servir de raccourci",
-    "scenes.intro": "Quand OBS passe sur une scène, la caméra va à la position choisie ici.", "scenes.none": "Aucune position",
+    "scenes.intro": "Quand OBS passe sur une scène, la caméra va à la position ou lance la ronde choisie ici.", "scenes.none": "Rien",
     "scenes.empty": "Aucune scène trouvée dans OBS.", "scenes.saved": "{s} : {p}", "scenes.cleared": "{s} : aucune position",
     "video.reload": "Relire depuis OBS", "video.source": "Source : {s}", "video.hint": "Chaque changement est appliqué tout de suite. La caméra peut couper une seconde dans OBS.",
     "video.unavailable": "Réglages vidéo indisponibles", "video.reloaded": "Réglages relus depuis OBS", "video.on": "{l} : activé", "video.off": "{l} : désactivé",
@@ -727,11 +819,11 @@ async function refresh() {
     $("#camLabel").textContent = c.connected ? c.name : t("stat.camMissing");
     st.title = !c.connected ? (c.error || t("stat.camMissing")) : c.controllable ? t("stat.camOk") : t("stat.camFixed");
     moveDur = state.settings.move_duration;
-    renderCompat(); renderAxes(); renderAim();
+    renderCompat(); renderAxes(); renderAim(); renderTourBar();
     if (firstLoad) {
       firstLoad = false;
       if (state.ui) { if (!hadLocalTheme) applyTheme(state.ui.theme); if (!hadLocalAccent) applyAccent(state.ui.accent); }
-      renderPresets(); fillSettings(); showTab(store.get("tab", "presets")); refreshSource();
+      renderPresets(); renderTours(); fillSettings(); showTab(store.get("tab", "presets")); refreshSource(); checkUpdate();
     }
   } catch (e) {
     $("#camStat").classList.remove("on"); $("#camStat").classList.add("off"); $("#camLabel").textContent = t("error.app");
@@ -885,8 +977,20 @@ function renderPresets() {
         <button class="btn sm icon ghost" data-act="update" title="${esc(t("presets.update"))}"><svg class="i"><use href="#i-refresh"/></svg></button>
         <button class="btn sm icon ghost" data-act="del" title="${esc(t("presets.delete"))}"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>
-      <div class="pr-vals">${vals}</div>`;
+      <div class="pr-vals"><span class="pv">${vals}</span><select class="pr-speed" title="${esc(t("speed.title"))}"></select></div>`;
     $(".pr-name", el).value = p.name;
+    $(".pr-name", el).title = t("presets.rename");
+    const sp = $(".pr-speed", el);
+    sp.add(new Option(t("speed.default", { s: num(moveDur, 1) }), ""));
+    sp.add(new Option(t("speed.instant"), "0"));
+    for (const v of [0.5, 1, 1.5, 2, 3, 5, 8]) sp.add(new Option(t("speed.s", { s: num(v, v % 1 ? 1 : 0) }), String(v)));
+    if (p.duration != null && ![...sp.options].some(o => o.value === String(p.duration))) sp.add(new Option(t("speed.s", { s: num(p.duration, 1) }), String(p.duration)));
+    sp.value = p.duration != null ? String(p.duration) : "";
+    sp.classList.toggle("custom", p.duration != null);
+    sp.onchange = safe(async () => {
+      await api(`/api/presets/${p.id}`, { method: "PATCH", body: { duration: sp.value === "" ? null : +sp.value } });
+      await reloadPresets();
+    });
     $(".pr-go", el).onclick = safe(() => api(`/api/preset/${p.id}/go`, { method: "POST" }));
     $(".pr-name", el).addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
     $(".pr-name", el).onchange = safe(async e => { await api(`/api/presets/${p.id}`, { method: "PATCH", body: { name: e.target.value } }); await reloadPresets(); });
@@ -951,7 +1055,7 @@ function obsKey(e) {
 }
 function captureHotkey(el, target, after) {
   const isInput = el.tagName === "INPUT";
-  const restore = () => { if (isInput) { el.value = state.hotkeys?.[target] || ""; el.placeholder = t("hk.none"); } else renderPresets(); };
+  const restore = () => { if (isInput) { el.value = state.hotkeys?.[target] || ""; el.placeholder = t("hk.none"); } else if (target.startsWith("tour:")) renderTours(); else renderPresets(); };
   el.addEventListener("click", () => {
     if (editingHotkey && editingHotkey !== el) editingHotkey.blur();
     editingHotkey = el; el.classList.add("listening"); el.classList.remove("scroll");
@@ -991,7 +1095,12 @@ async function loadScenes() {
       $(".scene-name", row).textContent = scene;
       const sel = $("select", row);
       sel.add(new Option(t("scenes.none"), ""));
-      state.presets.forEach((p, i) => sel.add(new Option(`${i + 1}. ${p.name}`, p.id, false, r.map[scene] === p.id)));
+      const gp = document.createElement("optgroup"); gp.label = t("scenes.groupPresets");
+      state.presets.forEach((p, i) => gp.appendChild(new Option(`${i + 1}. ${p.name}`, p.id, false, r.map[scene] === p.id)));
+      if (state.presets.length) sel.add(gp);
+      const gt = document.createElement("optgroup"); gt.label = t("scenes.groupTours");
+      (state.tours || []).forEach(tr => gt.appendChild(new Option(t("scenes.tourPrefix", { n: tr.name }), "tour:" + tr.id, false, r.map[scene] === "tour:" + tr.id)));
+      if ((state.tours || []).length) sel.add(gt);
       sel.onchange = safe(async () => {
         await api("/api/scenes", { body: { scene, preset: sel.value } });
         toast(sel.value ? t("scenes.saved", { s: scene, p: sel.selectedOptions[0].text }) : t("scenes.cleared", { s: scene }));
@@ -1093,9 +1202,10 @@ function fillSettings() {
   });
   const base = origin();
   $("#sdList").innerHTML = [["move.home", "/api/home"], ["move.flip", "/api/flip"], ["move.zoomIn", "/api/zoom/in"],
-    ["move.zoomOut", "/api/zoom/out"], ["set.sdSmall", "/api/nudge?axis=pan&delta=5"]].map(([label, path], i) =>
+    ["move.zoomOut", "/api/zoom/out"], ["set.sdNext", "/api/next"], ["set.sdPrev", "/api/prev"], ["set.sdTourStop", "/api/tour/stop"],
+    ["set.sdSmall", "/api/nudge?axis=pan&delta=5"]].map(([label, path], i) =>
     `<div><span>${t(label)}</span><div class="url-row"><code id="sd${i}">${esc(base + path)}</code><button class="btn sm icon" data-copy-from="sd${i}" title="Copy"><svg class="i"><use href="#i-copy"/></svg></button></div></div>`).join("")
-    + `<p class="hint" style="margin:0">${t("set.sdNudge")}</p>`;
+    + `<p class="hint" style="margin:0">${t("set.sdNudge")} ${t("set.sdTours")}</p>`;
   renderFooter();
   loadSources(); loadDevices();
 }
@@ -1138,9 +1248,171 @@ function renderFooter() {
   const a = (href, icon, text) => `<a href="${esc(href)}" target="_blank" rel="noopener"><svg class="i"><use href="#${icon}"/></svg>${esc(text)}</a>`;
   $("#footer").innerHTML =
     `<span class="who"><b>Camerist ${esc(state.version)}</b> ${t("foot.by")} <a href="${esc(L.author)}" target="_blank" rel="noopener">tomi_tomeh</a>, ${esc(t("foot.obs", { o: state.obs }))}</span>` +
-    a(L.repo, "i-git", "GitHub") + a(L.releases, "i-download", t("foot.releases")) + a(L.issues, "i-bug", t("foot.report")) +
+    a(L.repo, "i-git", "GitHub") +
+    (update ? `<a class="new" href="${esc(update.url)}" target="_blank" rel="noopener"><svg class="i"><use href="#i-download"/></svg>${esc(t("foot.updateNew"))}</a>` : a(L.releases, "i-download", t("foot.releases"))) +
+    a(L.issues, "i-bug", t("foot.report")) +
     (L.support ? a(L.support, "i-heart", t("foot.support")) : "");
 }
+
+
+// ---------- rondes ----------
+const openTours = new Set();
+let tourSig = "";
+function tourSummary(tr) {
+  const n = (tr.steps || []).length;
+  return `${n === 1 ? t("tours.summary1") : t("tours.summary", { n })}, ${tr.loop ? t("tours.loop") : t("tours.once")}`;
+}
+function renderTourBar() {
+  const st = state.tour || {}, bar = $("#tourBar");
+  bar.hidden = !st.running;
+  const sig = JSON.stringify([st.running, st.id, st.step]);
+  if (st.running) {
+    bar.innerHTML = `<span class="tb-dot"></span><span class="tb-text"></span><button class="btn sm" id="tbStop"><svg class="i" style="width:14px;height:14px"><use href="#i-stop"/></svg>${esc(t("tours.stop"))}</button>`;
+    $(".tb-text", bar).textContent = t("tours.running", { n: st.name, i: Math.max(1, st.step + 1), c: st.count });
+    bar.title = t("tours.manual");
+    $("#tbStop").onclick = safe(async () => { await api("/api/tour/stop", { method: "POST" }); toast(t("tours.stopped")); });
+  }
+  if (sig !== tourSig) { tourSig = sig; if (!$("[data-pane=tours]").hidden && !document.activeElement?.closest?.(".tour")) renderTours(); else markRunning(); }
+}
+function markRunning() {
+  const st = state.tour || {};
+  $$(".tour").forEach(el => {
+    const on = st.running && st.id === el.dataset.id;
+    el.classList.toggle("running", !!on);
+    const b = $(".t-play", el); if (!b) return;
+    b.innerHTML = `<svg class="i"><use href="#${on ? "i-stop" : "i-play"}"/></svg>`;
+    b.title = on ? t("tours.stop") : t("tours.start");
+  });
+}
+function renderTours() {
+  const box = $("#tours"), list = state.tours || [];
+  $("#tourCount").textContent = list.length || "";
+  if (!list.length) { box.className = ""; box.innerHTML = `<div class="empty"><strong>${t("tours.emptyTitle")}</strong>${t("tours.empty")}</div>`; return; }
+  box.className = "plist"; box.innerHTML = "";
+  list.forEach((tr, i) => {
+    const hk = state.hotkeys?.["tour:" + tr.id] || "";
+    const open = openTours.has(tr.id);
+    const el = document.createElement("div"); el.className = "tour"; el.dataset.id = tr.id;
+    el.innerHTML = `
+      <div class="pr">
+        <button class="btn primary pr-go t-play"></button>
+        <input type="text" class="pr-name" aria-label="${esc(t("presets.name"))}">
+        <div class="pr-side">
+          <button class="pr-key ${hk ? "set" : ""}" title="${esc(hk ? t("hk.change", { k: hk }) : t("hk.add"))}">${hk ? `<span class="kk">${esc(hk)}</span>` : '<svg class="i" style="width:16px;height:16px"><use href="#i-key"/></svg>'}</button>
+          <button class="btn sm icon ghost" data-act="edit" title="${esc(t("tours.edit"))}" aria-pressed="${open}"><svg class="i"><use href="#i-list"/></svg></button>
+          <button class="btn sm icon ghost" data-act="sd" title="${esc(t("tours.copy"))}"><svg class="i"><use href="#i-copy"/></svg></button>
+          <button class="btn sm icon ghost" data-act="del" title="${esc(t("tours.delete"))}"><svg class="i"><use href="#i-trash"/></svg></button>
+        </div>
+        <div class="pr-vals"><span class="pv"></span></div>
+      </div>
+      <div class="tour-body" ${open ? "" : "hidden"}>
+        <div class="steps"></div>
+        <div><button class="btn sm" data-act="add"><svg class="i" style="width:15px;height:15px"><use href="#i-plus"/></svg>${esc(t("tours.addStep"))}</button></div>
+        <label class="check"><input type="checkbox" class="t-loop"><span>${esc(t("tours.loopLabel"))}</span></label>
+      </div>`;
+    $(".pr-name", el).value = tr.name; $(".pr-name", el).title = t("presets.rename");
+    $(".pv", el).textContent = tourSummary(tr);
+    $(".t-loop", el).checked = !!tr.loop;
+    // étapes
+    const steps = $(".steps", el);
+    (tr.steps || []).forEach((st, k) => {
+      const row = document.createElement("div"); row.className = "step";
+      row.innerHTML = `<span class="sn">${k + 1}</span><select class="compact"></select>
+        <label class="pause">${esc(t("tours.pause"))} <input type="number" min="0" max="3600" step="0.5"> s</label>
+        <button class="btn sm icon ghost" data-step="up" title="${esc(t("tours.stepUp"))}" ${k === 0 ? "disabled" : ""}><svg class="i"><use href="#i-arrow-up"/></svg></button>
+        <button class="btn sm icon ghost" data-step="rm" title="${esc(t("tours.stepRemove"))}"><svg class="i"><use href="#i-x"/></svg></button>`;
+      const sel = $("select", row);
+      state.presets.forEach((p, j) => sel.add(new Option(`${j + 1}. ${p.name}`, p.id, false, p.id === st.preset)));
+      $("input", row).value = st.pause;
+      sel.onchange = safe(() => { tr.steps[k].preset = sel.value; return saveTour(tr); });
+      $("input", row).onchange = safe(e => { tr.steps[k].pause = Math.max(0, +e.target.value || 0); return saveTour(tr); });
+      row.addEventListener("click", safe(e => {
+        const b = e.target.closest("[data-step]"); if (!b) return;
+        if (b.dataset.step === "up") [tr.steps[k - 1], tr.steps[k]] = [tr.steps[k], tr.steps[k - 1]];
+        else tr.steps.splice(k, 1);
+        return saveTour(tr);
+      }));
+      steps.appendChild(row);
+    });
+    $(".t-loop", el).onchange = safe(e => { tr.loop = e.target.checked; return saveTour(tr); });
+    $(".pr-name", el).addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
+    $(".pr-name", el).onchange = safe(e => { tr.name = e.target.value.trim() || tr.name; return saveTour(tr); });
+    $(".t-play", el).onclick = safe(async () => {
+      const running = state.tour?.running && state.tour.id === tr.id;
+      if (running) { await api("/api/tour/stop", { method: "POST" }); toast(t("tours.stopped")); }
+      else { await api(`/api/tour/${tr.id}/start`, { method: "POST" }); toast(t("tours.started", { n: tr.name })); }
+      await reloadState();
+    });
+    const key = $(".pr-key", el);
+    captureHotkey(key, "tour:" + tr.id, () => reloadState());
+    el.addEventListener("click", safe(async e => {
+      const b = e.target.closest("[data-act]"); if (!b || !el.contains(b)) return;
+      const act = b.dataset.act;
+      if (act === "edit") { openTours.has(tr.id) ? openTours.delete(tr.id) : openTours.add(tr.id); renderTours(); return; }
+      if (act === "add") {
+        const last = tr.steps[tr.steps.length - 1];
+        const idx = state.presets.findIndex(p => p.id === last?.preset);
+        const next = state.presets[(idx + 1) % state.presets.length];
+        if (!next) { toast(t("tours.needPresets"), true); return; }
+        tr.steps.push({ preset: next.id, pause: last ? last.pause : 3 }); return saveTour(tr);
+      }
+      if (act === "sd") { await copy(`${origin()}/api/tour/${tr.id}/toggle`); toast(t("presets.copied")); return; }
+      if (act === "del") {
+        const head = $(".pr", el);
+        head.className = "pr pr-confirm";
+        head.innerHTML = `<span class="pc-text"></span><button class="btn sm pc-yes" data-act="del-yes">${esc(t("common.yes"))}</button><button class="btn sm pc-no" data-act="del-no">${esc(t("common.no"))}</button>`;
+        $(".pc-text", head).textContent = t("tours.confirmDelete", { n: tr.name }); $(".pc-no", head).focus();
+        head.onkeydown = ev => { if (ev.key === "Escape") renderTours(); };
+        return;
+      }
+      if (act === "del-no") { renderTours(); return; }
+      if (act === "del-yes") { await api(`/api/tours/${tr.id}`, { method: "DELETE" }); toast(t("tours.deleted", { n: tr.name })); openTours.delete(tr.id); await reloadState(); }
+    }));
+    box.appendChild(el);
+  });
+  markRunning();
+}
+async function saveTour(tr) {
+  await api("/api/tours", { body: { id: tr.id, name: tr.name, loop: !!tr.loop, steps: tr.steps } });
+  await reloadState();
+}
+async function reloadState() { state = await api("/api/state"); renderPresets(); renderTours(); renderTourBar(); aimBuilt = ""; renderAim(); }
+$("#btnNewTour").onclick = safe(async () => {
+  if (!state.presets.length) { toast(t("tours.needPresets"), true); return; }
+  const r = await api("/api/tours", { body: { name: t("tours.default", { n: (state.tours || []).length + 1 }), loop: true,
+    steps: state.presets.map(p => ({ preset: p.id, pause: 3 })) } });
+  openTours.add(r.tour.id); toast(t("tours.saved")); await reloadState();
+});
+
+// ---------- mise à jour disponible ----------
+let update = null;
+function newer(a, b) {
+  const pa = String(a).replace(/^v/, "").split(/[.-]/).map(n => parseInt(n, 10) || 0), pb = String(b).replace(/^v/, "").split(/[.-]/).map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) { if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0); }
+  return false;
+}
+async function checkUpdate() {
+  const url = state.links?.latest; if (!url) return;
+  let info = null;
+  try { info = JSON.parse(store.get("updInfo", "null")); } catch {}
+  const fresh = Date.now() - (+store.get("updChecked", 0)) < 6 * 3600e3;
+  if (!info || !fresh) {
+    try {
+      const r = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+      if (r.ok) { const j = await r.json(); info = { tag: j.tag_name, url: j.html_url }; store.set("updInfo", JSON.stringify(info)); store.set("updChecked", Date.now()); }
+    } catch {}
+  }
+  if (!info || !newer(info.tag, state.version)) { update = null; renderFooter(); return; }
+  update = info; renderFooter();
+  if (store.get("updDismissed", "") === info.tag) return;
+  const card = $("#updateCard");
+  card.innerHTML = `<span>${t("upd.available", { v: esc(info.tag) })}</span>
+    <a class="btn sm primary" href="${esc(info.url)}" target="_blank" rel="noopener">${esc(t("upd.download"))}</a>
+    <button class="btn sm icon ghost" title="${esc(t("upd.close"))}"><svg class="i"><use href="#i-x"/></svg></button>`;
+  $("button", card).onclick = () => { card.hidden = true; store.set("updDismissed", info.tag); };
+  card.hidden = false;
+}
+setInterval(() => state && checkUpdate(), 6 * 3600e3);
 
 // ---------- démarrage ----------
 applyI18n();

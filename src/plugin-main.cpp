@@ -58,16 +58,53 @@ static double Dur(double d)
 	return d < 0 ? app().store.MoveDuration() : d;
 }
 
+static std::mutex lastPresetMutex;
+static std::string lastPresetId; // dernière position appelée, pour suivante / précédente
+
+double PresetDuration(const QJsonObject &preset)
+{
+	QJsonValue d = preset.value("duration");
+	return d.isDouble() && d.toDouble() >= 0 ? d.toDouble() : app().store.MoveDuration();
+}
+
+void GoPresetObject(const QJsonObject &p, double duration)
+{
+	std::map<int, double> target;
+	for (int a = 0; a < AXIS_COUNT; a++)
+		if (p.contains(AXIS_NAMES[a]))
+			target[a] = p.value(AXIS_NAMES[a]).toDouble();
+	app().cam.GoTo(target, duration < 0 ? PresetDuration(p) : duration);
+	std::lock_guard<std::mutex> lock(lastPresetMutex);
+	lastPresetId = p.value("id").toString().toStdString();
+}
+
 QJsonObject GoPreset(const std::string &key, double duration)
 {
 	QJsonObject p = app().store.FindPreset(key);
 	if (p.isEmpty())
 		throw std::runtime_error(Text("Error.PresetNotFound"));
-	std::map<int, double> target;
-	for (int a = 0; a < AXIS_COUNT; a++)
-		if (p.contains(AXIS_NAMES[a]))
-			target[a] = p.value(AXIS_NAMES[a]).toDouble();
-	app().cam.GoTo(target, Dur(duration));
+	GoPresetObject(p, duration);
+	return p;
+}
+
+QJsonObject GoNext(int direction)
+{
+	QJsonArray list = app().store.Presets();
+	int n = list.size();
+	if (n == 0)
+		throw std::runtime_error(Text("Error.PresetNotFound"));
+	std::string last;
+	{
+		std::lock_guard<std::mutex> lock(lastPresetMutex);
+		last = lastPresetId;
+	}
+	int index = -1;
+	for (int i = 0; i < n; i++)
+		if (list[i].toObject().value("id").toString().toStdString() == last)
+			index = i;
+	int next = index < 0 ? (direction > 0 ? 0 : n - 1) : ((index + direction) % n + n) % n;
+	QJsonObject p = list[next].toObject();
+	GoPresetObject(p, -1);
 	return p;
 }
 
@@ -128,6 +165,12 @@ static void HotkeyPressed(void *data, obs_hotkey_id, obs_hotkey_t *, bool presse
 	/* on ne bloque pas le thread des raccourcis d'OBS */
 	std::thread([key]() {
 		RunSafe([&]() {
+			/* une ronde se lance ou s'arrête ; toute autre commande arrête la ronde */
+			if (key.rfind("tour:", 0) == 0) {
+				TourToggle(key.substr(5));
+				return;
+			}
+			TourStop();
 			if (key == "home")
 				DoHome();
 			else if (key == "flip")
@@ -136,6 +179,10 @@ static void HotkeyPressed(void *data, obs_hotkey_id, obs_hotkey_t *, bool presse
 				DoZoom(1);
 			else if (key == "zoom_out")
 				DoZoom(-1);
+			else if (key == "next")
+				GoNext(1);
+			else if (key == "prev")
+				GoNext(-1);
 			else if (key.rfind("preset:", 0) == 0)
 				GoPreset(key.substr(7));
 		});
@@ -174,6 +221,9 @@ static void RegisterFixedHotkeys()
 	RegisterHotkey("flip", Text("Hotkey.Flip"));
 	RegisterHotkey("zoom_in", Text("Hotkey.ZoomIn"));
 	RegisterHotkey("zoom_out", Text("Hotkey.ZoomOut"));
+	RegisterHotkey("next", Text("Hotkey.Next"));
+	RegisterHotkey("prev", Text("Hotkey.Prev"));
+	RegisterHotkey("tour_stop", Text("Hotkey.TourStop"));
 }
 
 void SyncPresetHotkeys()
@@ -189,8 +239,18 @@ void SyncPresetHotkeys()
 		RegisterHotkey(key, desc);
 		keep[key] = true;
 	}
+	QJsonArray tours = app().store.Tours();
+	for (int i = 0; i < tours.size(); i++) {
+		QJsonObject t = tours[i].toObject();
+		std::string key = "tour:" + t.value("id").toString().toStdString();
+		std::string desc = Text("Hotkey.Tour") + " " + std::to_string(i + 1) + " : " +
+				   t.value("name").toString().toStdString();
+		RegisterHotkey(key, desc);
+		keep[key] = true;
+	}
 	for (auto it = hotkeys.begin(); it != hotkeys.end();) {
-		if (it->first.rfind("preset:", 0) == 0 && !keep.count(it->first)) {
+		bool dynamic = it->first.rfind("preset:", 0) == 0 || it->first.rfind("tour:", 0) == 0;
+		if (dynamic && !keep.count(it->first)) {
 			obs_hotkey_unregister(it->second);
 			hotkeyKeys.erase(it->first);
 			it = hotkeys.erase(it);
@@ -341,10 +401,20 @@ static void OnSceneChanged()
 		return;
 	std::string name = obs_source_get_name(scene);
 	obs_source_release(scene);
-	std::string preset = app().store.PresetForScene(name);
-	if (preset.empty())
+	std::string target = app().store.PresetForScene(name);
+	if (target.empty())
 		return;
-	std::thread([preset]() { RunSafe([&]() { GoPreset(preset); }); }).detach();
+	/* une scène peut lancer une position ou une ronde ("tour:<id>") */
+	std::thread([target]() {
+		RunSafe([&]() {
+			if (target.rfind("tour:", 0) == 0) {
+				TourStart(target.substr(5));
+			} else {
+				TourStop();
+				GoPreset(target);
+			}
+		});
+	}).detach();
 }
 
 static void OnFrontendEvent(enum obs_frontend_event event, void *)
@@ -401,6 +471,7 @@ void obs_module_unload(void)
 {
 	obs_frontend_remove_event_callback(OnFrontendEvent, nullptr);
 	StopServer();
+	TourStop();
 	app().cam.Stop();
 	if (hotkeyData) {
 		obs_data_release(hotkeyData);

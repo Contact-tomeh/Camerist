@@ -42,6 +42,7 @@ target_sources(
     src/camera-dshow.cpp
     src/camera-stub.cpp
     src/store.cpp
+    src/tour.cpp
     src/obs-bridge.cpp
     src/server.cpp
 )

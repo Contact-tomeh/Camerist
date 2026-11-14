@@ -133,17 +133,24 @@ static QJsonObject StateJson()
 	QJsonObject cfg = app().store.Get();
 	QJsonArray presets = cfg.value("presets").toArray();
 	QJsonObject hotkeys;
-	for (const char *k : {"home", "flip", "zoom_in", "zoom_out"})
+	for (const char *k : {"home", "flip", "zoom_in", "zoom_out", "next", "prev", "tour_stop"})
 		hotkeys[k] = QString::fromStdString(HotkeyText(k));
 	for (auto v : presets) {
 		std::string id = v.toObject().value("id").toString().toStdString();
 		hotkeys[QString::fromStdString("preset:" + id)] = QString::fromStdString(HotkeyText("preset:" + id));
+	}
+	QJsonArray tours = cfg.value("tours").toArray();
+	for (auto v : tours) {
+		std::string id = v.toObject().value("id").toString().toStdString();
+		hotkeys[QString::fromStdString("tour:" + id)] = QString::fromStdString(HotkeyText("tour:" + id));
 	}
 	QJsonObject settings;
 	for (const char *k : {"move_duration", "jog_speed", "zoom_step", "nudge_step", "camera_name", "source"})
 		settings[k] = cfg.value(k);
 	return QJsonObject{{"camera", CameraJson()},
 			   {"presets", presets},
+			   {"tours", tours},
+			   {"tour", TourStatus()},
 			   {"scenes", cfg.value("scenes")},
 			   {"settings", settings},
 			   {"hotkeys", hotkeys},
@@ -157,7 +164,8 @@ static QJsonObject StateJson()
 						 {"releases", "https://github.com/Contact-tomeh/camerist/releases"},
 						 {"issues", "https://github.com/Contact-tomeh/camerist/issues/new/choose"},
 						 {"author", "https://github.com/Contact-tomeh"},
-						 {"support", "https://ko-fi.com/tomehdev"}}}};
+						 {"support", "https://ko-fi.com/tomehdev"},
+						 {"latest", "https://api.github.com/repos/Contact-tomeh/Camerist/releases/latest"}}}};
 }
 
 /* ---------------------------------------------------------------------- */
@@ -182,8 +190,10 @@ static void SetupRoutes(httplib::Server &s)
 		int axis = AxisFromName(b.value("axis").toString().toStdString());
 		if (b.value("stop").toBool())
 			app().cam.JogStop(axis);
-		else if (axis >= 0)
+		else if (axis >= 0) {
+			TourStop();
 			app().cam.JogStart(axis, b.value("dir").toDouble(1));
+		}
 		Ok(res);
 	}));
 
@@ -199,6 +209,7 @@ static void SetupRoutes(httplib::Server &s)
 		QJsonObject cfg = app().store.Get();
 		double step = cfg.value(axis == AXIS_ZOOM ? "zoom_step" : "nudge_step").toDouble(5);
 		double d = !delta.empty() ? std::stod(delta) : b.contains("delta") ? b.value("delta").toDouble() : step;
+		TourStop();
 		Ok(res, QJsonObject{{"value", app().cam.Nudge(axis, d)}});
 	});
 	s.Get("/api/nudge", nudge);
@@ -210,11 +221,13 @@ static void SetupRoutes(httplib::Server &s)
 		for (int a = 0; a < AXIS_COUNT; a++)
 			if (b.contains(AXIS_NAMES[a]))
 				target[a] = b.value(AXIS_NAMES[a]).toDouble();
+		TourStop();
 		app().cam.GoTo(target, b.value("duration").toDouble(0));
 		Ok(res);
 	}));
 
 	auto home = Route([](const Request &req, Response &res) {
+		TourStop();
 		DoHome(ArgDuration(req));
 		Ok(res);
 	});
@@ -222,6 +235,7 @@ static void SetupRoutes(httplib::Server &s)
 	s.Post("/api/home", home);
 
 	auto flip = Route([](const Request &req, Response &res) {
+		TourStop();
 		DoFlip(ArgDuration(req));
 		Ok(res);
 	});
@@ -229,6 +243,7 @@ static void SetupRoutes(httplib::Server &s)
 	s.Post("/api/flip", flip);
 
 	auto zoom = Route([](const Request &req, Response &res) {
+		TourStop();
 		DoZoom(req.matches[1] == "in" ? 1 : -1);
 		Ok(res);
 	});
@@ -284,6 +299,14 @@ static void SetupRoutes(httplib::Server &s)
 					if (!name.isEmpty())
 						p["name"] = name;
 				}
+				if (b.contains("duration")) {
+					/* null ou négatif = utiliser le réglage global */
+					QJsonValue d = b.value("duration");
+					if (d.isDouble() && d.toDouble() >= 0)
+						p["duration"] = std::min(60.0, d.toDouble());
+					else
+						p.remove("duration");
+				}
 				list[i] = p;
 				found = true;
 			}
@@ -309,6 +332,18 @@ static void SetupRoutes(httplib::Server &s)
 				if (scenes.value(k).toString() == id)
 					scenes.remove(k);
 			cfg["scenes"] = scenes;
+			/* et des rondes */
+			QJsonArray tours = cfg.value("tours").toArray();
+			for (int i = 0; i < tours.size(); i++) {
+				QJsonObject t = tours[i].toObject();
+				QJsonArray steps;
+				for (auto st : t.value("steps").toArray())
+					if (st.toObject().value("preset").toString() != id)
+						steps.append(st);
+				t["steps"] = steps;
+				tours[i] = t;
+			}
+			cfg["tours"] = tours;
 		});
 		SyncPresetHotkeys();
 		Ok(res);
@@ -332,12 +367,109 @@ static void SetupRoutes(httplib::Server &s)
 	}));
 
 	auto presetGo = Route([](const Request &req, Response &res) {
+		TourStop();
 		QJsonObject p = GoPreset(req.matches[1], ArgDuration(req));
 		Ok(res, QJsonObject{{"preset", p.value("name")}});
 	});
 	s.Get(R"(/api/preset/([^/]+)/go)", presetGo);
 	s.Post(R"(/api/preset/([^/]+)/go)", presetGo);
 	s.Get(R"(/api/preset/([^/]+))", presetGo);
+
+	/* --- position suivante / précédente --- */
+	auto next = Route([](const Request &, Response &res) {
+		TourStop();
+		Ok(res, QJsonObject{{"preset", GoNext(1).value("name")}});
+	});
+	auto prev = Route([](const Request &, Response &res) {
+		TourStop();
+		Ok(res, QJsonObject{{"preset", GoNext(-1).value("name")}});
+	});
+	s.Get("/api/next", next);
+	s.Post("/api/next", next);
+	s.Get("/api/prev", prev);
+	s.Post("/api/prev", prev);
+
+	/* --- rondes --- */
+	s.Post("/api/tours", Route([](const Request &req, Response &res) {
+		QJsonObject b = Body(req), saved;
+		app().store.Edit([&](QJsonObject &cfg) {
+			QJsonArray list = cfg.value("tours").toArray();
+			QString id = b.value("id").toString();
+			int idx = -1;
+			for (int i = 0; i < list.size() && !id.isEmpty(); i++)
+				if (list[i].toObject().value("id").toString() == id)
+					idx = i;
+			QJsonObject t = idx >= 0 ? list[idx].toObject() : QJsonObject();
+			if (idx < 0)
+				t["id"] = QUuid::createUuid().toString(QUuid::Id128).left(8);
+			QString name = b.value("name").toString().trimmed();
+			if (!name.isEmpty() || idx < 0)
+				t["name"] = name.isEmpty() ? QString("Ronde %1").arg(list.size() + 1) : name;
+			if (b.contains("loop") || idx < 0)
+				t["loop"] = b.value("loop").toBool(true);
+			if (b.contains("steps") || idx < 0) {
+				QJsonArray steps;
+				for (auto v : b.value("steps").toArray()) {
+					QJsonObject st = v.toObject();
+					QString preset = st.value("preset").toString();
+					if (preset.isEmpty())
+						continue;
+					double pause = std::max(0.0, std::min(3600.0, st.value("pause").toDouble(3)));
+					steps.append(QJsonObject{{"preset", preset}, {"pause", pause}});
+				}
+				t["steps"] = steps;
+			}
+			if (idx >= 0)
+				list[idx] = t;
+			else
+				list.append(t);
+			cfg["tours"] = list;
+			saved = t;
+		});
+		SyncPresetHotkeys();
+		Ok(res, QJsonObject{{"tour", saved}});
+	}));
+
+	s.Delete(R"(/api/tours/([\w-]+))", Route([](const Request &req, Response &res) {
+		QString id = QString::fromStdString(req.matches[1]);
+		if (TourStatus().value("id").toString() == id)
+			TourStop();
+		app().store.Edit([&](QJsonObject &cfg) {
+			QJsonArray list, old = cfg.value("tours").toArray();
+			for (auto v : old)
+				if (v.toObject().value("id").toString() != id)
+					list.append(v);
+			cfg["tours"] = list;
+			QJsonObject scenes = cfg.value("scenes").toObject();
+			for (auto k : scenes.keys())
+				if (scenes.value(k).toString() == "tour:" + id)
+					scenes.remove(k);
+			cfg["scenes"] = scenes;
+		});
+		SyncPresetHotkeys();
+		Ok(res);
+	}));
+
+	auto tourStop = Route([](const Request &, Response &res) {
+		TourStop();
+		Ok(res);
+	});
+	s.Get("/api/tour/stop", tourStop);
+	s.Post("/api/tour/stop", tourStop);
+
+	auto tourStart = Route([](const Request &req, Response &res) {
+		TourStart(req.matches[1]);
+		Ok(res, QJsonObject{{"tour", TourStatus()}});
+	});
+	s.Get(R"(/api/tour/([^/]+)/start)", tourStart);
+	s.Post(R"(/api/tour/([^/]+)/start)", tourStart);
+
+	auto tourToggle = Route([](const Request &req, Response &res) {
+		bool started = TourToggle(req.matches[1]);
+		Ok(res, QJsonObject{{"running", started}});
+	});
+	s.Get(R"(/api/tour/([^/]+)/toggle)", tourToggle);
+	s.Post(R"(/api/tour/([^/]+)/toggle)", tourToggle);
 
 	/* --- scènes liées --- */
 	s.Get("/api/scenes", Route([](const Request &, Response &res) {

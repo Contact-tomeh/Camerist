@@ -46,6 +46,8 @@ public:
 	int Port();
 	QJsonArray Presets();
 	QJsonObject FindPreset(const std::string &key); // id, numéro (1..n) ou nom ; vide si absent
+	QJsonArray Tours();
+	QJsonObject FindTour(const std::string &key); // id, numéro (1..n) ou nom ; vide si absent
 	std::string PresetForScene(const std::string &scene);
 
 private:
@@ -66,10 +68,19 @@ struct App {
 App &app();
 
 /* Actions partagées (panneau, Stream Deck, raccourcis, scènes) */
-QJsonObject GoPreset(const std::string &key, double duration = -1);
+QJsonObject GoPreset(const std::string &key, double duration = -1); // -1 = vitesse de la position
+void GoPresetObject(const QJsonObject &preset, double duration);
+double PresetDuration(const QJsonObject &preset); // trajet propre à la position, sinon réglage global
+QJsonObject GoNext(int direction);                // +1 position suivante, -1 précédente
 void DoHome(double duration = -1);
 void DoFlip(double duration = -1);
 void DoZoom(int direction);
+
+/* Rondes (tour.cpp) */
+void TourStart(const std::string &key);
+void TourStop();
+bool TourToggle(const std::string &key); // true si la ronde vient de démarrer
+QJsonObject TourStatus();
 
 /* Raccourcis OBS (plugin-main.cpp) */
 void SyncPresetHotkeys();
