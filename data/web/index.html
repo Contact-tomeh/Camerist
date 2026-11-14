@@ -186,8 +186,18 @@
     background: var(--accent-soft); border: 1px solid var(--accent-line); }
   .newform input { flex: 1 1 160px; }
   .plist { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-  .pr { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; grid-template-areas: "go name side" "go vals side";
-    gap: 0 10px; align-items: center; padding: 8px 8px 8px 10px; border-top: 1px solid var(--line); }
+  .pr { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; grid-template-areas: "go name side" "go vals side" "more more more";
+    gap: 0 10px; align-items: center; padding: 8px 8px 8px 10px; border-top: 1px solid var(--line); cursor: pointer; }
+  .pr.open { background: var(--raised); }
+  .pr-more { grid-area: more; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 8px 0 0 48px; padding-top: 8px;
+    border-top: 1px dashed var(--line); cursor: default; }
+  .pr-more .opt { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12.5px; }
+  .pr-more .opt select { height: 28px; }
+  .pr-more .opt .pr-key { margin-right: 0; }
+  .pr-more .acts { display: flex; gap: 2px; margin-left: auto; }
+  .pr-chev .i { transition: transform .15s; }
+  .pr.open .pr-chev .i { transform: rotate(180deg); }
+  @media (prefers-reduced-motion: reduce) { .pr-chev .i { transition: none; } }
   .pr:first-child { border-top: 0; }
   .pr:hover { background: var(--raised); }
   .pr-go { grid-area: go; width: 38px; height: 38px; padding: 0; font-size: 15px; font-weight: 600; }
@@ -199,12 +209,8 @@
   .pr-vals .pv { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pr-vals .pv span + span { margin-left: 9px; }
   .pr-vals .pv { flex: 0 1 auto; }
-  .pr-speed { position: relative; flex: none; display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 5px; margin: 0 -5px 0 0;
-    border-radius: 4px; color: var(--faint); white-space: nowrap; }
-  .pr-speed .i { width: 13px; height: 13px; }
-  .pr-speed:hover, .pr-speed:focus-within { background: var(--field); color: var(--text); }
-  .pr-speed.custom { color: var(--accent); }
-  .pr-speed select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; padding: 0; border: 0; }
+  .pr-vals .cust { flex: none; display: inline-flex; align-items: center; gap: 3px; color: var(--accent); }
+  .pr-vals .cust .i { width: 13px; height: 13px; }
   input.pr-name:hover:not(:focus) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%239a9ca3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; padding-right: 26px; }
 
   /* rondes */
@@ -217,7 +223,10 @@
   .tour:first-child { border-top: 0; }
   .tour > .pr { border-top: 0; }
   .tour.running > .pr { background: var(--accent-soft); }
-  .tour-body { padding: 4px 10px 12px 58px; display: grid; gap: 8px; }
+  .tour-body { padding: 0 10px 12px 58px; display: grid; gap: 8px; background: var(--raised); }
+  .tour-body .opt { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12.5px; }
+  .tour-body .opt .pr-key { margin-right: 0; }
+  .tour > .pr.open { border-bottom: 0; }
   .steps { display: grid; gap: 6px; }
   .step { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto auto auto; grid-template-areas: "n sel pause up rm"; gap: 6px; align-items: center; }
   .step .sn { grid-area: n; } .step select { grid-area: sel; } .step .pause { grid-area: pause; }
@@ -254,10 +263,7 @@
   .pc-yes { background: var(--bad); border-color: var(--bad); color: #fff; }
   .pc-yes:hover { filter: brightness(1.08); border-color: var(--bad); }
   .pr-key.listening, .hk.listening { border-color: var(--accent) !important; color: var(--accent) !important; }
-  @media (max-width: 480px) {
-    .pr { grid-template-columns: 38px minmax(0, 1fr); grid-template-areas: "go name" "go vals" "side side"; }
-    .pr-side { justify-content: flex-end; margin-top: 6px; }
-  }
+  @media (max-width: 400px) { .pr-more { margin-left: 0; } }
   .empty { text-align: center; color: var(--muted); padding: 22px 10px; }
   .empty strong { display: block; color: var(--text); margin-bottom: 4px; font-weight: 600; }
 
@@ -621,7 +627,7 @@ const I18N = {
     "set.sdTours": "To start or stop a tour, copy its address from the Tours tab.",
     "presets.search": "Search positions", "presets.save": "Save", "presets.name": "Position name", "presets.saveCurrent": "Save current position",
     "presets.emptyTitle": "No positions yet", "presets.empty": "Frame the camera the way you like, then click “Save”.", "presets.noMatch": "No position contains “{q}”.",
-    "presets.go": "Go to this position", "presets.up": "Move up in the list", "presets.copy": "Copy the Stream Deck address", "presets.update": "Replace with the current position",
+    "presets.go": "Go to this position", "presets.up": "Move up in the list", "presets.copy": "Copy the Stream Deck address", "presets.update": "Replace with the current position", "presets.more": "More options", "presets.travel": "Travel", "presets.hotkey": "Shortcut",
     "presets.delete": "Delete", "presets.confirmDelete": "Delete “{n}”?", "presets.default": "Position {n}",
     "presets.saved": "“{n}” saved", "presets.updated": "“{n}” updated", "presets.deleted": "“{n}” deleted", "presets.copied": "Address copied, paste it into the Stream Deck",
     "hk.add": "Add a keyboard shortcut", "hk.change": "Shortcut: {k}. Click to change it", "hk.press": "Press keys…", "hk.none": "None",
@@ -687,7 +693,7 @@ const I18N = {
     "set.sdTours": "Pour lancer ou arrêter une ronde, copie son adresse depuis l'onglet Rondes.",
     "presets.search": "Chercher une position", "presets.save": "Enregistrer", "presets.name": "Nom de la position", "presets.saveCurrent": "Enregistrer la position actuelle",
     "presets.emptyTitle": "Aucune position pour l'instant", "presets.empty": "Cadre la caméra comme tu veux, puis clique sur « Enregistrer ».", "presets.noMatch": "Aucune position ne contient « {q} ».",
-    "presets.go": "Aller à cette position", "presets.up": "Monter dans la liste", "presets.copy": "Copier l'adresse pour le Stream Deck", "presets.update": "Remplacer par la position actuelle",
+    "presets.go": "Aller à cette position", "presets.up": "Monter dans la liste", "presets.copy": "Copier l'adresse pour le Stream Deck", "presets.update": "Remplacer par la position actuelle", "presets.more": "Plus d'options", "presets.travel": "Trajet", "presets.hotkey": "Raccourci",
     "presets.delete": "Supprimer", "presets.confirmDelete": "Supprimer « {n} » ?", "presets.default": "Position {n}",
     "presets.saved": "« {n} » enregistrée", "presets.updated": "« {n} » mise à jour", "presets.deleted": "« {n} » supprimée", "presets.copied": "Adresse copiée, colle-la dans le Stream Deck",
     "hk.add": "Ajouter un raccourci clavier", "hk.change": "Raccourci : {k}. Clique pour le changer", "hk.press": "Appuie sur les touches…", "hk.none": "Aucun",
@@ -960,6 +966,8 @@ $$("[data-home]").forEach(b => b.onclick = safe(() => api("/api/home", { method:
 $("#btnFlip").onclick = safe(() => api("/api/flip", { method: "POST" }));
 
 // ---------- positions ----------
+const openPresets = new Set();
+const speedText = d => d === 0 ? t("speed.instant") : t("speed.s", { s: num(d, d % 1 ? 1 : 0) });
 function renderPresets() {
   const box = $("#presets"), list = state.presets, q = $("#searchInput").value.trim().toLowerCase();
   $("#presetCount").textContent = list.length || "";
@@ -972,36 +980,45 @@ function renderPresets() {
     const hk = state.hotkeys?.["preset:" + p.id] || "";
     const vals = ["pan", "tilt", "zoom", "roll"].filter(a => p[a] != null && (a !== "roll" || p.roll))
       .map(a => `<span>${a === "pan" ? "Pan" : a === "tilt" ? "Tilt" : t("axis." + a)} ${fmt(a, p[a])}</span>`).join("");
-    const el = document.createElement("div"); el.className = "pr";
+    const open = openPresets.has(p.id);
+    const el = document.createElement("div"); el.className = "pr" + (open ? " open" : "");
     el.innerHTML = `
       <button class="btn primary pr-go" title="${esc(t("presets.go"))}">${i + 1}</button>
       <input type="text" class="pr-name" aria-label="${esc(t("presets.name"))}">
       <div class="pr-side">
-        <button class="pr-key ${hk ? "set" : ""}" title="${esc(hk ? t("hk.change", { k: hk }) : t("hk.add"))}">${hk ? `<span class="kk">${esc(hk)}</span>` : '<svg class="i" style="width:16px;height:16px"><use href="#i-key"/></svg>'}</button>
-        <button class="btn sm icon ghost" data-act="up" title="${esc(t("presets.up"))}" ${i === 0 ? "disabled" : ""}><svg class="i"><use href="#i-arrow-up"/></svg></button>
         <button class="btn sm icon ghost" data-act="sd" title="${esc(t("presets.copy"))}"><svg class="i"><use href="#i-copy"/></svg></button>
-        <button class="btn sm icon ghost" data-act="update" title="${esc(t("presets.update"))}"><svg class="i"><use href="#i-refresh"/></svg></button>
         <button class="btn sm icon ghost" data-act="del" title="${esc(t("presets.delete"))}"><svg class="i"><use href="#i-trash"/></svg></button>
+        <button class="btn sm icon ghost pr-chev" data-act="more" title="${esc(t("presets.more"))}" aria-expanded="${open}"><svg class="i"><use href="#i-down"/></svg></button>
       </div>
-      <div class="pr-vals"><span class="pv">${vals}</span><label class="pr-speed" title="${esc(t("speed.title"))}"><svg class="i"><use href="#i-clock"/></svg><span class="sv"></span><select aria-label="${esc(t("speed.title"))}"></select></label></div>`;
+      <div class="pr-vals"><span class="pv">${vals}</span></div>
+      ${open ? `<div class="pr-more">
+        <label class="opt"><svg class="i" style="width:15px;height:15px"><use href="#i-clock"/></svg><span>${esc(t("presets.travel"))}</span><select class="compact pr-speed"></select></label>
+        <span class="opt"><svg class="i" style="width:15px;height:15px"><use href="#i-key"/></svg><span>${esc(t("presets.hotkey"))}</span>
+          <button class="pr-key ${hk ? "set" : ""}" title="${esc(hk ? t("hk.change", { k: hk }) : t("hk.add"))}">${hk ? `<span class="kk">${esc(hk)}</span>` : esc(t("hk.none"))}</button></span>
+        <span class="acts">
+          <button class="btn sm icon ghost" data-act="up" title="${esc(t("presets.up"))}" ${i === 0 ? "disabled" : ""}><svg class="i"><use href="#i-arrow-up"/></svg></button>
+          <button class="btn sm icon ghost" data-act="update" title="${esc(t("presets.update"))}"><svg class="i"><use href="#i-refresh"/></svg></button>
+        </span>
+      </div>` : ""}`;
     $(".pr-name", el).value = p.name;
     $(".pr-name", el).title = t("presets.rename");
-    const sp = $(".pr-speed select", el), spBox = $(".pr-speed", el);
+    const sp = $("select.pr-speed", el);
+    if (sp) {
     sp.add(new Option(t("speed.default", { s: num(moveDur, 1) }), ""));
     sp.add(new Option(t("speed.instant"), "0"));
     for (const v of [0.5, 1, 1.5, 2, 3, 5, 8]) sp.add(new Option(t("speed.s", { s: num(v, v % 1 ? 1 : 0) }), String(v)));
     if (p.duration != null && ![...sp.options].some(o => o.value === String(p.duration))) sp.add(new Option(t("speed.s", { s: num(p.duration, 1) }), String(p.duration)));
     sp.value = p.duration != null ? String(p.duration) : "";
-    spBox.classList.toggle("custom", p.duration != null);
-    $(".sv", el).textContent = p.duration == null ? t("speed.s", { s: num(moveDur, moveDur % 1 ? 1 : 0) }) : p.duration === 0 ? t("speed.instant") : t("speed.s", { s: num(p.duration, p.duration % 1 ? 1 : 0) });
     sp.onchange = safe(async () => {
       await api(`/api/presets/${p.id}`, { method: "PATCH", body: { duration: sp.value === "" ? null : +sp.value } });
       await reloadPresets();
     });
+    }
     $(".pr-go", el).onclick = safe(() => api(`/api/preset/${p.id}/go`, { method: "POST" }));
     $(".pr-name", el).addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
     $(".pr-name", el).onchange = safe(async e => { await api(`/api/presets/${p.id}`, { method: "PATCH", body: { name: e.target.value } }); await reloadPresets(); });
     const key = $(".pr-key", el);
+    if (key) {
     key.addEventListener("mouseenter", () => {
       const kk = $(".kk", key); if (!kk) return;
       const over = kk.scrollWidth - (key.clientWidth - 14);
@@ -1010,9 +1027,15 @@ function renderPresets() {
     key.addEventListener("mouseleave", () => key.classList.remove("scroll"));
     requestAnimationFrame(() => { const kk = $(".kk", key); if (kk && kk.scrollWidth > key.clientWidth - 14) key.classList.add("long"); });
     captureHotkey(key, "preset:" + p.id, () => reloadPresets());
+    }
     el.addEventListener("click", safe(async e => {
-      const b = e.target.closest("[data-act]"); if (!b) return;
+      const b = e.target.closest("[data-act]");
+      if (!b) {
+        if (e.target.closest("input, select, button, label, .pr-more") || el.classList.contains("pr-confirm")) return;
+        openPresets.has(p.id) ? openPresets.delete(p.id) : openPresets.add(p.id); renderPresets(); return;
+      }
       const act = b.dataset.act;
+      if (act === "more") { openPresets.has(p.id) ? openPresets.delete(p.id) : openPresets.add(p.id); renderPresets(); return; }
       if (act === "del") {
         el.className = "pr pr-confirm";
         el.innerHTML = `<span class="pc-text"></span>
@@ -1301,14 +1324,13 @@ function renderTours() {
     const open = openTours.has(tr.id);
     const el = document.createElement("div"); el.className = "tour"; el.dataset.id = tr.id;
     el.innerHTML = `
-      <div class="pr">
+      <div class="pr${open ? " open" : ""}">
         <button class="btn primary pr-go t-play"></button>
         <input type="text" class="pr-name" aria-label="${esc(t("presets.name"))}">
         <div class="pr-side">
-          <button class="pr-key ${hk ? "set" : ""}" title="${esc(hk ? t("hk.change", { k: hk }) : t("hk.add"))}">${hk ? `<span class="kk">${esc(hk)}</span>` : '<svg class="i" style="width:16px;height:16px"><use href="#i-key"/></svg>'}</button>
-          <button class="btn sm icon ghost" data-act="edit" title="${esc(t("tours.edit"))}" aria-pressed="${open}"><svg class="i"><use href="#i-list"/></svg></button>
           <button class="btn sm icon ghost" data-act="sd" title="${esc(t("tours.copy"))}"><svg class="i"><use href="#i-copy"/></svg></button>
           <button class="btn sm icon ghost" data-act="del" title="${esc(t("tours.delete"))}"><svg class="i"><use href="#i-trash"/></svg></button>
+          <button class="btn sm icon ghost pr-chev" data-act="edit" title="${esc(t("tours.edit"))}" aria-expanded="${open}"><svg class="i"><use href="#i-down"/></svg></button>
         </div>
         <div class="pr-vals"><span class="pv"></span></div>
       </div>
@@ -1316,6 +1338,8 @@ function renderTours() {
         <div class="steps"></div>
         <div><button class="btn sm" data-act="add"><svg class="i" style="width:15px;height:15px"><use href="#i-plus"/></svg>${esc(t("tours.addStep"))}</button></div>
         <label class="check"><input type="checkbox" class="t-loop"><span>${esc(t("tours.loopLabel"))}</span></label>
+        <span class="opt"><svg class="i" style="width:15px;height:15px"><use href="#i-key"/></svg><span>${esc(t("presets.hotkey"))}</span>
+          <button class="pr-key ${hk ? "set" : ""}" title="${esc(hk ? t("hk.change", { k: hk }) : t("hk.add"))}">${hk ? `<span class="kk">${esc(hk)}</span>` : esc(t("hk.none"))}</button></span>
       </div>`;
     $(".pr-name", el).value = tr.name; $(".pr-name", el).title = t("presets.rename");
     $(".pv", el).textContent = tourSummary(tr);
@@ -1353,7 +1377,11 @@ function renderTours() {
     const key = $(".pr-key", el);
     captureHotkey(key, "tour:" + tr.id, () => reloadState());
     el.addEventListener("click", safe(async e => {
-      const b = e.target.closest("[data-act]"); if (!b || !el.contains(b)) return;
+      const b = e.target.closest("[data-act]");
+      if (!b) {
+        if (!e.target.closest(".pr") || e.target.closest("input, select, button, label") || el.querySelector(".pr-confirm")) return;
+        openTours.has(tr.id) ? openTours.delete(tr.id) : openTours.add(tr.id); renderTours(); return;
+      }
       const act = b.dataset.act;
       if (act === "edit") { openTours.has(tr.id) ? openTours.delete(tr.id) : openTours.add(tr.id); renderTours(); return; }
       if (act === "add") {
